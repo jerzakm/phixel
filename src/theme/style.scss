@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
+@import 'smui-theme.scss';
+
+body{
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #efefef;
+}
+
+.logo {
+    color: $mdc-theme-surface;
+}
+
+.main-canvas{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}

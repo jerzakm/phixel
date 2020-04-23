@@ -1,0 +1,13 @@
+//
+// MDC Theme
+//
+
+@import "@material/theme/color-palette";
+
+$mdc-theme-primary: rgb(255, 255, 255);
+$mdc-theme-secondary: rgb(149, 39, 223);
+
+$mdc-theme-background: #fff;
+$mdc-theme-surface: #fff;
+
+$mdc-theme-error: $material-color-red-900;
