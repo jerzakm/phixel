@@ -11,7 +11,12 @@ export const createExampleProject = () => {
     id: 'example',
     name: "Example project",
     image: 'test_waves.jpg',
-    filters: []
+    filters: [{
+      filterRef: 'pixelate',
+      options: {
+        size: 4
+      }
+    }]
   }
   return project
 }
@@ -21,10 +26,10 @@ export interface Project {
   id: string
   name: string
   image?: string
-  filters: Filter[]
+  filters: ProjectFilter[]
 }
 
-export interface Filter {
+export interface ProjectFilter {
   filterRef: string
   options: any
 }

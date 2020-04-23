@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import * as PIXI from "pixi.js";
   import * as Filters from "pixi-filters";
-  import { filterArray, currentProject } from "../../stores";
+  import { currentProject } from "../../stores";
+  import { refreshFilters } from "../../filterManager";
 
   const renderer = new PIXI.Renderer({
     width: window.innerWidth,
@@ -20,26 +21,31 @@
     renderer.view.height = window.innerHeight;
   });
 
+  // IMAGE RENDER
   let currentSprite = "";
+  let currentFilters = [];
 
-  const sprite = PIXI.Sprite.from("empty.jpg");
+  const sprite = new PIXI.Sprite();
   stage.addChild(sprite);
   const scale = 1.0;
   sprite.scale.x = scale;
   sprite.scale.y = scale;
 
-  const unsubscribeProject = currentProject.subscribe(value => {
-    if (currentSprite != value.image) {
-      let texture = PIXI.Texture.from(value.image);
+  const unsubscribeProject = currentProject.subscribe(project => {
+    // reload
+    if (currentSprite != project.image) {
+      let texture = PIXI.Texture.from(project.image);
       sprite.texture = texture;
-      currentSprite = value.image;
+      currentSprite = project.image;
     }
-  });
 
-  const unsubscribeFilters = filterArray.subscribe(value => {
-    console.log("new filters arrived");
-    sprite.filters = [];
-    value.map(v => sprite.filters.push(v.value));
+    if (JSON.stringify(currentFilters) != JSON.stringify(project.filters)) {
+      console.log(currentFilters, project.filters);
+      console.log("different filters!");
+
+      const newFilters = refreshFilters(project.filters);
+      sprite.filters = newFilters;
+    }
   });
 
   ticker.add(() => {

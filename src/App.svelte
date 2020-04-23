@@ -11,9 +11,6 @@
   // import Toolbar from "./components/Toolbar.svelte";
   const example = createExampleProject();
   loadProject(example);
-
-  // @ts-ignore
-  const unsubscribe = currentProject.subscribe(value => {});
 </script>
 
 <Topbar />

@@ -1,3 +1,4 @@
-.rp2_cache/
+.rp2_cache/*
 public/
 node_modules/
+/.rpt2_cache
