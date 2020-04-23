@@ -1,1 +1,0 @@
-{"code":"import { writable } from 'svelte/store';\r\nexport const userAuth = writable(undefined);\r\nexport const filterArray = writable([]);\r\nexport const openProject = writable(undefined);\r\n","references":["D:/phixel/node_modules/svelte/store/index.d.ts"]}
