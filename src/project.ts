@@ -1,16 +1,30 @@
-export interface Project {
-  name: string
-  layers: Layer[]
+import { currentProject } from "./stores"
+
+export const loadProject = (project: Project) => {
+  // @ts-ignore
+  currentProject.set(project)
 }
 
-export interface Layer {
+
+export const createExampleProject = () => {
+  const project: Project = {
+    id: 'example',
+    name: "Example project",
+    image: 'test_waves.jpg',
+    filters: []
+  }
+  return project
+}
+
+
+export interface Project {
+  id: string
+  name: string
+  image?: string
   filters: Filter[]
-  opacity: number
-  transform: { x: number, y: number }
 }
 
 export interface Filter {
   filterRef: string
-  filter: any
   options: any
 }

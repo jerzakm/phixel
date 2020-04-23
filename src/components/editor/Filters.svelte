@@ -12,7 +12,7 @@
 
   // list.push({id: 0, name: 'Zoom',value: new Filters.ZoomBlurFilter()})
   // list.push({id: 1, name: 'CrossHatch', value: new Filters.CrossHatchFilter()})
-  list.push({ id: 2, name: "Pixelate", value: new Filters.PixelateFilter(64) });
+  // list.push({ id: 2, name: "Pixelate", value: new Filters.PixelateFilter(64) });
 
   $: list && filterArray.set(list) && console.log("changed filter list");
 </script>
