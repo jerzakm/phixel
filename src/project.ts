@@ -11,12 +11,26 @@ export const createExampleProject = () => {
     id: 'example',
     name: "Example project",
     image: 'test_waves.jpg',
-    filters: [{
-      filterRef: 'pixelate',
-      options: {
-        size: 4
+    filters: [
+      {
+        filterRef: 'pixelate',
+        options: {
+          size: 4
+        }
+      },
+      {
+        filterRef: 'adjustment',
+        options: {
+          saturation: 2
+        }
+      },
+      {
+        filterRef: 'blur',
+        options: {
+          strength: 4
+        }
       }
-    }]
+    ]
   }
   return project
 }

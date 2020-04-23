@@ -2,19 +2,40 @@
   import { flip } from "svelte/animate";
   import { quintOut, quadIn, sineIn } from "svelte/easing";
   import Sortable from "svelte-sortablejs";
-  import * as Filters from "pixi-filters";
-  import { ProjectFilter } from "../../project";
 
+  import { currentProject } from "../../stores";
+
+  let tempProject = {};
   let list = [];
   let options = {
     draggable: ".filters"
   };
 
-  // list.push({id: 0, name: 'Zoom',value: new Filters.ZoomBlurFilter()})
-  // list.push({id: 1, name: 'CrossHatch', value: new Filters.CrossHatchFilter()})
-  // list.push({ id: 2, name: "Pixelate", value: new Filters.PixelateFilter(64) });
+  const unsubscribeProject = currentProject.subscribe(project => {
+    tempProject = project;
+    list = [];
+    for (let i = 0; i < project.filters.length; i++) {
+      list.push({
+        id: i,
+        name: project.filters[i].filterRef,
+        value: project.filters[i]
+      });
+    }
+  });
 
-  // $: list && filterArray.set(list) && console.log("changed filter list");
+  function updateFilters() {
+    const fList = [];
+    console.log(list);
+    for (const filter of list) {
+      fList.push(filter.value);
+    }
+    tempProject.filters = fList;
+    console.log(tempProject);
+    currentProject.set(tempProject);
+  }
+
+  // $: list && currentProject.set(list) && console.log("changed filter list");
+  $: list && updateFilters();
 </script>
 
 <style>

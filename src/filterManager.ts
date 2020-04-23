@@ -1,9 +1,10 @@
 import { ProjectFilter } from "./project";
 import { Filter } from "pixi.js";
-import * as Filters from "pixi-filters"
-import { Pixelate } from "./filters/PixelateFilter";
+import { Pixelate } from "./filters/Pixelate";
+import { Adjustment } from "./filters/ColorAdjustment";
+import { Blur } from "./filters/Blur";
 
-const filterDictionary: FilterBuilder[] = [Pixelate]
+const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur]
 
 export const refreshFilters = (filters: ProjectFilter[]) => {
   const finishedFilters: Filter[] = [];

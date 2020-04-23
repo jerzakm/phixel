@@ -39,13 +39,10 @@
       currentSprite = project.image;
     }
 
-    if (JSON.stringify(currentFilters) != JSON.stringify(project.filters)) {
-      console.log(currentFilters, project.filters);
-      console.log("different filters!");
+    console.log(`PROJECT FILTERS:`, project.filters);
 
-      const newFilters = refreshFilters(project.filters);
-      sprite.filters = newFilters;
-    }
+    const newFilters = refreshFilters(project.filters);
+    sprite.filters = newFilters;
   });
 
   ticker.add(() => {
