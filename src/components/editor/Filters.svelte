@@ -39,10 +39,6 @@
   import Checkbox from "@smui/checkbox";
   import FormField from "@smui/form-field";
   import Button from "@smui/button";
-  function enableChange() {
-    console.log(list);
-    updateFilters();
-  }
 </script>
 
 <style>
@@ -65,9 +61,7 @@
       <div class="filter-container">
         <div>
           <FormField>
-            <Checkbox
-              bind:checked={filter.value.enabled}
-              on:change={enableChange} />
+            <Checkbox bind:checked={filter.value.enabled} />
             <span slot="label">{filter.name}</span>
           </FormField>
         </div>
