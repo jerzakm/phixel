@@ -14,18 +14,21 @@ export const createExampleProject = () => {
     filters: [
       {
         filterRef: 'pixelate',
+        enabled: true,
         options: {
           size: 4
         }
       },
       {
         filterRef: 'adjustment',
+        enabled: true,
         options: {
           saturation: 2
         }
       },
       {
         filterRef: 'blur',
+        enabled: true,
         options: {
           strength: 4
         }
@@ -46,4 +49,5 @@ export interface Project {
 export interface ProjectFilter {
   filterRef: string
   options: any
+  enabled: boolean
 }

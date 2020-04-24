@@ -25,17 +25,24 @@
 
   function updateFilters() {
     const fList = [];
-    console.log(list);
     for (const filter of list) {
       fList.push(filter.value);
     }
     tempProject.filters = fList;
-    console.log(tempProject);
     currentProject.set(tempProject);
   }
 
   // $: list && currentProject.set(list) && console.log("changed filter list");
   $: list && updateFilters();
+
+  let simpleSelected = false;
+  import Checkbox from "@smui/checkbox";
+  import FormField from "@smui/form-field";
+  import Button from "@smui/button";
+  function enableChange() {
+    console.log(list);
+    updateFilters();
+  }
 </script>
 
 <style>
@@ -45,6 +52,7 @@
   .filter-container {
     margin: 5px;
     background-color: #eeeeee;
+    display: flex;
   }
 </style>
 
@@ -54,7 +62,16 @@
       animate:flip={{ duration: 150, easing: sineIn }}
       sortable-id={filter.name}
       class="filters">
-      <div class="filter-container">{filter.name}</div>
+      <div class="filter-container">
+        <div>
+          <FormField>
+            <Checkbox
+              bind:checked={filter.value.enabled}
+              on:change={enableChange} />
+            <span slot="label">{filter.name}</span>
+          </FormField>
+        </div>
+      </div>
     </li>
   {/each}
 </Sortable>

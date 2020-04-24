@@ -39,8 +39,6 @@
       currentSprite = project.image;
     }
 
-    console.log(`PROJECT FILTERS:`, project.filters);
-
     const newFilters = refreshFilters(project.filters);
     sprite.filters = newFilters;
   });

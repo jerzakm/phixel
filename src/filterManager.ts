@@ -9,11 +9,9 @@ const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur]
 export const refreshFilters = (filters: ProjectFilter[]) => {
   const finishedFilters: Filter[] = [];
 
-  console.log(filterDictionary)
-
   for (const filter of filters) {
     for (const f of filterDictionary) {
-      if (filter.filterRef == f.filterRef) {
+      if (filter.filterRef == f.filterRef && filter.enabled) {
         finishedFilters.push(f.build(filter.options))
       }
     }
