@@ -1,4 +1,9 @@
 <script>
+  import Checkbox from "@smui/checkbox";
+  import FormField from "@smui/form-field";
+  import Button, { Label } from "@smui/button";
+  import IconButton, { Icon } from "@smui/icon-button";
+
   import { flip } from "svelte/animate";
   import { quintOut, quadIn, sineIn } from "svelte/easing";
   import Sortable from "svelte-sortablejs";
@@ -26,19 +31,20 @@
   function updateFilters() {
     const fList = [];
     for (const filter of list) {
-      fList.push(filter.value);
+      if (!filter.remove) {
+        fList.push(filter.value);
+      }
     }
     tempProject.filters = fList;
     currentProject.set(tempProject);
   }
 
-  // $: list && currentProject.set(list) && console.log("changed filter list");
-  $: list && updateFilters();
+  function removeFilter(filter) {
+    filter.remove = true;
+    updateFilters();
+  }
 
-  let simpleSelected = false;
-  import Checkbox from "@smui/checkbox";
-  import FormField from "@smui/form-field";
-  import Button from "@smui/button";
+  $: list && updateFilters();
 </script>
 
 <style>
@@ -50,6 +56,13 @@
     background-color: #eeeeee;
     display: flex;
   }
+  .filter-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+  }
 </style>
 
 <Sortable {options} bind:list>
@@ -59,11 +72,16 @@
       sortable-id={filter.name}
       class="filters">
       <div class="filter-container">
-        <div>
+        <div class="filter-entry">
           <FormField>
             <Checkbox bind:checked={filter.value.enabled} />
-            <span slot="label">{filter.name}</span>
           </FormField>
+          <Label>{filter.name}</Label>
+          <IconButton
+            class="material-icons"
+            on:click={() => removeFilter(filter)}>
+            delete
+          </IconButton>
         </div>
       </div>
     </li>

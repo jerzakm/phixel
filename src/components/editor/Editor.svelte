@@ -1,6 +1,6 @@
 <script>
   import Canvas from "./Canvas.svelte";
-  import Filters from "./Filters.svelte";
+  import FilterList from "./FilterList.svelte";
   import Layers from "./Layers.svelte";
 </script>
 
@@ -8,7 +8,7 @@
   .card {
     background-color: #ffffff;
     min-height: 50px;
-    width: 500px;
+    width: 300px;
     position: fixed;
     top: 96px;
     right: 32px;
@@ -28,9 +28,9 @@
 <Canvas />
 <div class="card">
   <div class="filters">
-    <Filters />
+    <FilterList />
   </div>
-  <div class="layers">
+  <!-- <div class="layers">
     <Layers />
-  </div>
+  </div> -->
 </div>
