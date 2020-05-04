@@ -15,10 +15,10 @@
     display: flex;
     flex-direction: row;
   }
-  .layers {
+  /* .layers {
     background-color: #cecece;
     width: 150px;
-  }
+  } */
   .filters {
     background-color: #dddddd;
     width: 100%;

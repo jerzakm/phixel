@@ -3,6 +3,12 @@
   import FormField from "@smui/form-field";
   import Button, { Label } from "@smui/button";
   import IconButton, { Icon } from "@smui/icon-button";
+  import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
+
+  import { filterDictionary } from "../../filterManager.ts";
+
+  let filterGalleryDialog;
+  let clicked = "nope";
 
   import { flip } from "svelte/animate";
   import { quintOut, quadIn, sineIn } from "svelte/easing";
@@ -22,7 +28,7 @@
     for (let i = 0; i < project.filters.length; i++) {
       list.push({
         id: i,
-        name: project.filters[i].filterRef,
+        name: i,
         value: project.filters[i]
       });
     }
@@ -44,6 +50,16 @@
     updateFilters();
   }
 
+  function addFilter(filter) {
+    tempProject.filters.push({
+      filterRef: filter.filterRef,
+      enabled: true,
+      options: {}
+    });
+    currentProject.set(tempProject);
+    console.log(tempProject);
+  }
+
   $: list && updateFilters();
 </script>
 
@@ -63,27 +79,68 @@
     flex-direction: row;
     width: 100%;
   }
+  .filter-list-container {
+    display: flex;
+    flex-direction: column;
+  }
 </style>
 
-<Sortable {options} bind:list>
-  {#each list as filter (filter.name)}
-    <li
-      animate:flip={{ duration: 150, easing: sineIn }}
-      sortable-id={filter.name}
-      class="filters">
-      <div class="filter-container">
-        <div class="filter-entry">
-          <FormField>
-            <Checkbox bind:checked={filter.value.enabled} />
-          </FormField>
-          <Label>{filter.name}</Label>
-          <IconButton
-            class="material-icons"
-            on:click={() => removeFilter(filter)}>
-            delete
-          </IconButton>
+<div class="filter-list-container">
+
+  <Sortable {options} bind:list>
+    {#each list as filter (filter.name)}
+      <li
+        animate:flip={{ duration: 150, easing: sineIn }}
+        sortable-id={filter.name}
+        class="filters">
+        <div class="filter-container">
+          <div class="filter-entry">
+            <FormField>
+              <Checkbox bind:checked={filter.value.enabled} />
+            </FormField>
+            <Label>{filter.value.filterRef}</Label>
+            <IconButton
+              class="material-icons"
+              on:click={() => removeFilter(filter)}>
+              delete
+            </IconButton>
+          </div>
         </div>
-      </div>
-    </li>
-  {/each}
-</Sortable>
+      </li>
+    {/each}
+  </Sortable>
+
+  <Button
+    class="new-filter-btn"
+    on:click={() => filterGalleryDialog.open()}
+    variant="raised"
+    color="secondary">
+    <Label>Add filters</Label>
+  </Button>
+
+</div>
+
+<div>
+  <Dialog
+    bind:this={filterGalleryDialog}
+    aria-labelledby="simple-title"
+    aria-describedby="simple-content">
+    <!-- Title cannot contain leading whitespace due to mdc-typography-baseline-top() -->
+    <Title id="simple-title">Add a new filter</Title>
+    <Content id="simple-content">
+      {#each filterDictionary as filter}
+        <Button
+          on:click={() => addFilter(filter)}
+          variant="raised"
+          color="secondary">
+          <Label>{filter.name}</Label>
+        </Button>
+      {/each}
+    </Content>
+    <Actions>
+      <Button on:click={() => (clicked = 'Yes')}>
+        <Label>Close</Label>
+      </Button>
+    </Actions>
+  </Dialog>
+</div>

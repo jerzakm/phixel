@@ -4,10 +4,10 @@
 
 @import "@material/theme/color-palette";
 
-$mdc-theme-primary: rgb(255, 255, 255);
+$mdc-theme-primary: rgb(32, 32, 32);
 $mdc-theme-secondary: rgb(60, 231, 131);
 
 $mdc-theme-background: #fff;
-$mdc-theme-surface: #fff;
+$mdc-theme-surface: rgb(255, 255, 255);
 
 $mdc-theme-error: $material-color-red-900;
