@@ -6,6 +6,7 @@
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
 
   import { filterDictionary } from "../../filterManager.ts";
+  import FilterGallery from "./FilterGallery.svelte";
 
   let filterGalleryDialog;
   let clicked = "nope";
@@ -48,16 +49,6 @@
   function removeFilter(filter) {
     filter.remove = true;
     updateFilters();
-  }
-
-  function addFilter(filter) {
-    tempProject.filters.push({
-      filterRef: filter.filterRef,
-      enabled: true,
-      options: {}
-    });
-    currentProject.set(tempProject);
-    console.log(tempProject);
   }
 
   $: list && updateFilters();
@@ -120,27 +111,4 @@
 
 </div>
 
-<div>
-  <Dialog
-    bind:this={filterGalleryDialog}
-    aria-labelledby="simple-title"
-    aria-describedby="simple-content">
-    <!-- Title cannot contain leading whitespace due to mdc-typography-baseline-top() -->
-    <Title id="simple-title">Add a new filter</Title>
-    <Content id="simple-content">
-      {#each filterDictionary as filter}
-        <Button
-          on:click={() => addFilter(filter)}
-          variant="raised"
-          color="secondary">
-          <Label>{filter.name}</Label>
-        </Button>
-      {/each}
-    </Content>
-    <Actions>
-      <Button on:click={() => (clicked = 'Yes')}>
-        <Label>Close</Label>
-      </Button>
-    </Actions>
-  </Dialog>
-</div>
+<FilterGallery bind:filterGalleryDialog />
