@@ -11,6 +11,9 @@
   let filterGalleryDialog;
   let clicked = "nope";
 
+  import Slider from "@smui/slider";
+  let pixelSize = 0;
+
   import { flip } from "svelte/animate";
   import { quintOut, quadIn, sineIn } from "svelte/easing";
   import Sortable from "svelte-sortablejs";
@@ -95,6 +98,13 @@
               on:click={() => removeFilter(filter)}>
               delete
             </IconButton>
+            {#if filter.value.filterRef == 'pixelate'}
+              <Slider
+                bind:value={filter.value.options.size}
+                min={1}
+                max={64}
+                step={1} />
+            {/if}
           </div>
         </div>
       </li>

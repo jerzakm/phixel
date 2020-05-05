@@ -5,6 +5,21 @@
   import { currentProject } from "../../stores";
   export let filterGalleryDialog;
 
+  let tempProject = {};
+  let list;
+
+  const unsubscribeProject = currentProject.subscribe(project => {
+    tempProject = project;
+    list = [];
+    for (let i = 0; i < project.filters.length; i++) {
+      list.push({
+        id: i,
+        name: i,
+        value: project.filters[i]
+      });
+    }
+  });
+
   function addFilter(filter) {
     tempProject.filters.push({
       filterRef: filter.filterRef,
