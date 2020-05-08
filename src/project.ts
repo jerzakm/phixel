@@ -50,4 +50,5 @@ export interface ProjectFilter {
   filterRef: string
   options: any
   enabled: boolean
+  optionsOpen?: boolean
 }

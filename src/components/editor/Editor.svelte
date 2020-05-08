@@ -8,10 +8,10 @@
   .card {
     background-color: #ffffff;
     min-height: 50px;
-    width: 300px;
     position: fixed;
     top: 96px;
     right: 32px;
+    width: 270px;
     display: flex;
     flex-direction: row;
   }
@@ -22,6 +22,7 @@
   .filters {
     background-color: #dddddd;
     width: 100%;
+    padding: 5px;
   }
 </style>
 

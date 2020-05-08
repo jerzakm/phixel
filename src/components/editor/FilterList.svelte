@@ -4,21 +4,14 @@
   import Button, { Label } from "@smui/button";
   import IconButton, { Icon } from "@smui/icon-button";
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
-
   import { filterDictionary } from "../../filterManager.ts";
   import FilterGallery from "./FilterGallery.svelte";
+  import Sortable from "svelte-sortablejs";
+  import { currentProject } from "../../stores";
+  import FilterOptions from "./FilterOptions.svelte";
 
   let filterGalleryDialog;
   let clicked = "nope";
-
-  import Slider from "@smui/slider";
-  let pixelSize = 0;
-
-  import { flip } from "svelte/animate";
-  import { quintOut, quadIn, sineIn } from "svelte/easing";
-  import Sortable from "svelte-sortablejs";
-
-  import { currentProject } from "../../stores";
 
   let tempProject = {};
   let list = [];
@@ -26,7 +19,7 @@
     draggable: ".filters"
   };
 
-  const unsubscribeProject = currentProject.subscribe(project => {
+  currentProject.subscribe(project => {
     tempProject = project;
     list = [];
     for (let i = 0; i < project.filters.length; i++) {
@@ -60,51 +53,57 @@
 <style>
   .filters {
     list-style-type: none;
+    width: 100%;
   }
   .filter-container {
-    margin: 5px;
     background-color: #eeeeee;
     display: flex;
+    width: 100%;
+    margin-bottom: 8px;
   }
   .filter-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+  }
+  .filter-list-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  .filter-entry-min {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
   }
-  .filter-list-container {
-    display: flex;
-    flex-direction: column;
-  }
 </style>
 
 <div class="filter-list-container">
-
   <Sortable {options} bind:list>
     {#each list as filter (filter.name)}
-      <li
-        animate:flip={{ duration: 150, easing: sineIn }}
-        sortable-id={filter.name}
-        class="filters">
+      <li sortable-id={filter.name} class="filters">
         <div class="filter-container">
           <div class="filter-entry">
-            <FormField>
-              <Checkbox bind:checked={filter.value.enabled} />
-            </FormField>
-            <Label>{filter.value.filterRef}</Label>
-            <IconButton
-              class="material-icons"
-              on:click={() => removeFilter(filter)}>
-              delete
-            </IconButton>
-            {#if filter.value.filterRef == 'pixelate'}
-              <Slider
-                bind:value={filter.value.options.size}
-                min={1}
-                max={64}
-                step={1} />
-            {/if}
+            <div class="filter-entry-min">
+              <Button
+                class="filter-name-button"
+                on:click={() => (filter.value.optionsOpen ? (filter.value.optionsOpen = false) : (filter.value.optionsOpen = true))}>
+                {filter.value.filterRef}
+              </Button>
+              <IconButton
+                class="material-icons"
+                on:click={() => removeFilter(filter)}>
+                delete
+              </IconButton>
+              <FormField>
+                <Checkbox bind:checked={filter.value.enabled} />
+              </FormField>
+            </div>
+            <FilterOptions {filter} />
           </div>
         </div>
       </li>
@@ -120,5 +119,4 @@
   </Button>
 
 </div>
-
 <FilterGallery bind:filterGalleryDialog />
