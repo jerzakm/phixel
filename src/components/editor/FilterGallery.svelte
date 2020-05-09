@@ -27,7 +27,6 @@
       options: {}
     });
     currentProject.set(tempProject);
-    console.log(tempProject);
   }
 </script>
 

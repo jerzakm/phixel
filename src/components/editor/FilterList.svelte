@@ -7,7 +7,7 @@
   import { filterDictionary } from "../../filterManager.ts";
   import FilterGallery from "./FilterGallery.svelte";
   import Sortable from "svelte-sortablejs";
-  import { currentProject } from "../../stores";
+  import { currentProject, filterUpdate } from "../../stores";
   import FilterOptions from "./FilterOptions.svelte";
 
   let filterGalleryDialog;
@@ -20,7 +20,20 @@
   };
 
   currentProject.subscribe(project => {
-    tempProject = project;
+    // console.log(
+    //   JSON.stringify(tempProject.filters),
+    //   JSON.stringify(project.filters)
+    // );
+    if (
+      JSON.stringify(tempProject.filters) != JSON.stringify(project.filters)
+    ) {
+      console.log("filters Differ!!!!!");
+    }
+    if (JSON.stringify(tempProject) != JSON.stringify(project)) {
+      console.log("change in the project");
+      tempProject = project;
+    }
+
     list = [];
     for (let i = 0; i < project.filters.length; i++) {
       list.push({
@@ -28,6 +41,13 @@
         name: i,
         value: project.filters[i]
       });
+    }
+  });
+
+  filterUpdate.subscribe(update => {
+    if (update == true) {
+      filterUpdate.set(false);
+      updateFilters();
     }
   });
 
@@ -46,8 +66,6 @@
     filter.remove = true;
     updateFilters();
   }
-
-  $: list && updateFilters();
 </script>
 
 <style>

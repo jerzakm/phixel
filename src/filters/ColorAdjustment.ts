@@ -1,5 +1,6 @@
 import { AdjustmentFilter } from 'pixi-filters'
-import { FilterBuilder } from '../filterManager'
+import { FilterBuilder } from './_FilterInterfaces'
+
 
 const build = (options: any) => {
   return new AdjustmentFilter(options)

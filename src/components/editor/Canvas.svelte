@@ -31,6 +31,8 @@
   sprite.scale.x = scale;
   sprite.scale.y = scale;
 
+  let lastFilters;
+
   const unsubscribeProject = currentProject.subscribe(project => {
     // reload
     if (currentSprite != project.image) {
@@ -39,8 +41,13 @@
       currentSprite = project.image;
     }
 
-    const newFilters = refreshFilters(project.filters);
-    sprite.filters = newFilters;
+    //are filters different?
+    if (JSON.stringify(project.filters) != JSON.stringify(lastFilters)) {
+      console.log("filters are different");
+      lastFilters = project.filters;
+      const newFilters = refreshFilters(project.filters);
+      sprite.filters = newFilters;
+    }
   });
 
   ticker.add(() => {
