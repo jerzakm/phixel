@@ -3,6 +3,8 @@ export enum FilterOptionType {
 }
 
 export interface FilterOptionSlider {
+  name: string
+  desc: string
   type: FilterOptionType
   min: number,
   max: number,

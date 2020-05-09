@@ -11,6 +11,8 @@ export const Pixelate: FilterBuilder = {
   build,
   options: [
     {
+      name: 'Size',
+      desc: 'Size of the pixel on the original image',
       type: FilterOptionType.SLIDER,
       min: 1,
       max: 64,

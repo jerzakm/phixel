@@ -11,7 +11,7 @@
     position: fixed;
     top: 96px;
     right: 32px;
-    width: 270px;
+    width: 370px;
     display: flex;
     flex-direction: row;
   }

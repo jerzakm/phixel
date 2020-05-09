@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto+Mono&display=swap');
 @import 'smui-theme.scss';
+@import 'filters.scss';
 
 body {
     font-family: 'Roboto Mono', monospace;
@@ -20,17 +21,4 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: -1;
-}
-
-.new-filter-btn {
-    margin: 0px 5px 7px 5px;
-}
-
-.filter-name-button {
-    margin-left: 5px;
-}
-
-.filterOptionSlider {
-    margin: 5px;
-    width: unset;
 }

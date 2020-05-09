@@ -41,13 +41,10 @@
       currentSprite = project.image;
     }
 
-    //are filters different?
-    if (JSON.stringify(project.filters) != JSON.stringify(lastFilters)) {
-      console.log("filters are different");
-      lastFilters = project.filters;
-      const newFilters = refreshFilters(project.filters);
-      sprite.filters = newFilters;
-    }
+    // TODO are filters different?
+    lastFilters = project.filters;
+    const newFilters = refreshFilters(project.filters);
+    sprite.filters = newFilters;
   });
 
   ticker.add(() => {
