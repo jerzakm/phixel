@@ -26,7 +26,7 @@
       id: uuidv4(),
       filterRef: filter.filterRef,
       enabled: true,
-      options: {}
+      options: filter.defaultOptions
     });
     currentProject.set(tempProject);
   }

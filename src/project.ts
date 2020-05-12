@@ -34,7 +34,8 @@ export const createExampleProject = () => {
         filterRef: 'blur',
         enabled: true,
         options: {
-          strength: 4
+          strength: 4,
+          quality: 4
         }
       }
     ]

@@ -44,16 +44,18 @@
     // tempProject.filters[filter.value.id] = filter.value;
     filterUpdate.set(true);
   }
+
+  $: filter && update();
 </script>
 
 <style>
   .filter-option-container {
     min-width: 100px;
     min-height: 100px;
-    background-color: grey;
+    background-color: #dddddd;
     position: fixed;
-    top: 200px;
-    right: 450px;
+    top: 100px;
+    right: 305px;
   }
 
   .filter-options-container {
@@ -70,20 +72,20 @@
         {#if option.type == 'slider'}
           <div class="filter-options-slider-container">
             <span>{option.name}</span>
-            <Slider
+            <input
+              type="range"
+              bind:value={filter.options[`${option.filterProperty}`]}
+              min={option.min}
+              max={option.max}
+              step={option.step} />
+            <!-- <Slider
               class="filter-options-slider"
-              on:click={() => {
-                update();
-              }}
-              on:mousemove={() => {
-                update();
-              }}
               bind:value={filter.options[`${option.filterProperty}`]}
               min={option.min}
               max={option.max}
               step={option.step}
-              discrete />
-            <span>{filter.options.size}</span>
+              discrete /> -->
+            <span>{filter.options[`${option.filterProperty}`]}</span>
           </div>
         {/if}
       {/each}
