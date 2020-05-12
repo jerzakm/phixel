@@ -34,7 +34,7 @@
   }
 </style>
 
-{#if filter && filter.value.optionsOpen && filterOptions}
+{#if filter && filterOptions}
   <div class="filter-options-container">
     {#each filterOptions as option}
       {#if option.type == 'slider'}
@@ -43,6 +43,9 @@
           <Slider
             class="filter-options-slider"
             on:click={() => {
+              update();
+            }}
+            on:mousemove={() => {
               update();
             }}
             bind:value={filter.value.options[`${option.filterProperty}`]}

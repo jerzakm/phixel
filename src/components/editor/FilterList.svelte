@@ -54,6 +54,8 @@
     filter.remove = true;
     updateFilters();
   }
+
+  $: list && updateFilters();
 </script>
 
 <style>
