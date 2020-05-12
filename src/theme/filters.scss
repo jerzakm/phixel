@@ -15,3 +15,7 @@
 .filter-options-slider {
   width: 50%;
 }
+
+.selected-filter {
+  outline: $mdc-theme-secondary solid 2px;
+}

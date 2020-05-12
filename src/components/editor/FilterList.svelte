@@ -7,7 +7,7 @@
   import { filterDictionary } from "../../filterManager.ts";
   import FilterGallery from "./FilterGallery.svelte";
   import Sortable from "svelte-sortablejs";
-  import { currentProject, filterUpdate } from "../../stores";
+  import { currentProject, filterUpdate, selectedFilter } from "../../stores";
   import FilterOptions from "./FilterOptions.svelte";
 
   let filterGalleryDialog;
@@ -56,6 +56,12 @@
   }
 
   $: list && updateFilters();
+
+  let currentSelected;
+
+  selectedFilter.subscribe(s => {
+    currentSelected = s;
+  });
 </script>
 
 <style>
@@ -95,11 +101,10 @@
     {#each list as filter (filter.name)}
       <li sortable-id={filter.name} class="filters">
         <div class="filter-container">
-          <div class="filter-entry">
+          <div
+            class={currentSelected === filter.value.id ? 'selected-filter filter-entry' : 'filter-entry'}>
             <div class="filter-entry-min">
-              <Button
-                class="filter-name-button"
-                on:click={() => (filter.value.optionsOpen ? (filter.value.optionsOpen = false) : (filter.value.optionsOpen = true))}>
+              <Button on:click={() => selectedFilter.set(filter.value.id)}>
                 {filter.value.filterRef}
               </Button>
               <IconButton
@@ -111,7 +116,7 @@
                 <Checkbox bind:checked={filter.value.enabled} />
               </FormField>
             </div>
-            <FilterOptions {filter} />
+            <!-- <FilterOptions {filter} /> -->
           </div>
         </div>
       </li>

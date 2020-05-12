@@ -1,4 +1,5 @@
 import { currentProject } from "./stores"
+import { uuidv4 } from "./util"
 
 export const loadProject = (project: Project) => {
   // @ts-ignore
@@ -13,6 +14,7 @@ export const createExampleProject = () => {
     image: 'test_waves.jpg',
     filters: [
       {
+        id: uuidv4(),
         filterRef: 'pixelate',
         enabled: true,
         options: {
@@ -20,6 +22,7 @@ export const createExampleProject = () => {
         }
       },
       {
+        id: uuidv4(),
         filterRef: 'adjustment',
         enabled: true,
         options: {
@@ -27,6 +30,7 @@ export const createExampleProject = () => {
         }
       },
       {
+        id: uuidv4(),
         filterRef: 'blur',
         enabled: true,
         options: {
@@ -47,6 +51,7 @@ export interface Project {
 }
 
 export interface ProjectFilter {
+  id: string
   filterRef: string
   options: any
   enabled: boolean

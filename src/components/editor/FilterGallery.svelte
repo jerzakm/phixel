@@ -3,6 +3,7 @@
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
   import { filterDictionary } from "../../filterManager.ts";
   import { currentProject } from "../../stores";
+  import { uuidv4 } from "../../util.ts";
   export let filterGalleryDialog;
 
   let tempProject = {};
@@ -22,6 +23,7 @@
 
   function addFilter(filter) {
     tempProject.filters.push({
+      id: uuidv4(),
       filterRef: filter.filterRef,
       enabled: true,
       options: {}

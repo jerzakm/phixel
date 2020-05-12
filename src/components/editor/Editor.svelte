@@ -2,6 +2,7 @@
   import Canvas from "./Canvas.svelte";
   import FilterList from "./FilterList.svelte";
   import Layers from "./Layers.svelte";
+  import FilterOptionWindow from "./FilterOptionWindow.svelte";
 </script>
 
 <style>
@@ -11,7 +12,7 @@
     position: fixed;
     top: 96px;
     right: 32px;
-    width: 370px;
+    width: 270px;
     display: flex;
     flex-direction: row;
   }
@@ -35,3 +36,5 @@
     <Layers />
   </div> -->
 </div>
+
+<FilterOptionWindow />
