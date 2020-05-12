@@ -1,5 +1,6 @@
 import { currentProject } from "./stores"
 import { uuidv4 } from "./util"
+import { filterDictionary } from "./filterManager"
 
 export const loadProject = (project: Project) => {
   // @ts-ignore
@@ -13,33 +14,16 @@ export const createExampleProject = () => {
     name: "Example project",
     image: 'test_waves.jpg',
     filters: [
-      {
-        id: uuidv4(),
-        filterRef: 'pixelate',
-        enabled: true,
-        options: {
-          size: 8
-        }
-      },
-      {
-        id: uuidv4(),
-        filterRef: 'adjustment',
-        enabled: true,
-        options: {
-          saturation: 2
-        }
-      },
-      {
-        id: uuidv4(),
-        filterRef: 'blur',
-        enabled: true,
-        options: {
-          strength: 4,
-          quality: 4
-        }
-      }
     ]
   }
+
+  for (const f of filterDictionary) {
+    const filter: any = Object.create(f)
+    filter.id = uuidv4()
+    filter.enabled = true
+    project.filters.push(filter)
+  }
+
   return project
 }
 

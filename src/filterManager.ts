@@ -4,8 +4,9 @@ import { Pixelate } from "./filters/Pixelate";
 import { Adjustment } from "./filters/ColorAdjustment";
 import { Blur } from "./filters/Blur";
 import { FilterBuilder } from "./filters/_FilterInterfaces";
+import { Bloom } from "./filters/Bloom";
 
-export const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur]
+export const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur, Bloom]
 
 
 export const refreshFilters = (filters: ProjectFilter[]) => {

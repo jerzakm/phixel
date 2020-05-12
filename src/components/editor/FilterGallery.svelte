@@ -21,6 +21,8 @@
     }
   });
 
+  console.log(filterDictionary);
+
   function addFilter(filter) {
     tempProject.filters.push({
       id: uuidv4(),
