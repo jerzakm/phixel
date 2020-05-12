@@ -16,5 +16,6 @@ export interface FilterBuilder {
   filterRef: string
   name: string
   build: any,
-  options?: (FilterOptionSlider)[]
+  options?: (FilterOptionSlider)[],
+  defaultOptions?: any
 }

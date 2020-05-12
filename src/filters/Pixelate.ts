@@ -2,13 +2,18 @@ import { PixelateFilter } from 'pixi-filters'
 import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
 
 const build = (options: any) => {
-  return new PixelateFilter(options.size ? options.size : 2)
+  const o = Object.create(Pixelate.defaultOptions)
+  Object.assign(o, options)
+  return new PixelateFilter(o.size)
 }
 
 export const Pixelate: FilterBuilder = {
   filterRef: 'pixelate',
   name: 'Pixelate',
   build,
+  defaultOptions: {
+    size: 4
+  },
   options: [
     {
       name: 'Size',

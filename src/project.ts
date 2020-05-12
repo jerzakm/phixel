@@ -16,7 +16,7 @@ export const createExampleProject = () => {
         filterRef: 'pixelate',
         enabled: true,
         options: {
-          size: 4
+          size: 8
         }
       },
       {
