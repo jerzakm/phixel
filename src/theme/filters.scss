@@ -19,3 +19,9 @@
 .selected-filter {
   outline: $mdc-theme-secondary solid 2px;
 }
+
+.filter-options-colorPicker-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}

@@ -2,12 +2,13 @@ import { ProjectFilter } from "./project";
 import { Filter } from "pixi.js";
 import { Pixelate } from "./filters/Pixelate";
 import { Adjustment } from "./filters/ColorAdjustment";
+import { ReplaceColor } from "./filters/ReplaceColor"
 import { Blur } from "./filters/Blur";
 import { FilterBuilder } from "./filters/_FilterInterfaces";
 import { Bloom } from "./filters/Bloom";
 import { Ascii } from "./filters/Ascii";
 
-export const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur, Bloom, Ascii]
+export const filterDictionary: FilterBuilder[] = [Pixelate, Adjustment, Blur, Bloom, Ascii, ReplaceColor]
 
 
 export const refreshFilters = (filters: ProjectFilter[]) => {

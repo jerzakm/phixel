@@ -18,10 +18,12 @@ export const createExampleProject = () => {
   }
 
   for (const f of filterDictionary) {
-    const filter: any = Object.create(f)
-    filter.id = uuidv4()
-    filter.enabled = true
-    project.filters.push(filter)
+    if (f.filterRef == 'colorReplace') {
+      const filter: any = Object.create(f)
+      filter.id = uuidv4()
+      filter.enabled = true
+      project.filters.push(filter)
+    }
   }
 
   return project

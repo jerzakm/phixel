@@ -1,6 +1,7 @@
 <script>
   import { filterDictionary } from "../../filterManager.ts";
   import Slider from "@smui/slider";
+  import { HsvPicker } from "svelte-color-picker";
   import Textfield, { Input, Textarea } from "@smui/textfield";
 
   let filter;
@@ -45,6 +46,10 @@
     filterUpdate.set(true);
   }
 
+  function colorCallback(rgba) {
+    console.log(rgba.detail);
+  }
+
   $: filter && update();
 </script>
 
@@ -86,6 +91,14 @@
               step={option.step}
               discrete /> -->
             <span>{filter.options[`${option.filterProperty}`]}</span>
+          </div>
+        {:else if option.type == 'colorPicker'}
+          <div
+            class="filter-options-colorPicker-container"
+            on:click={() => console.log(filter, option)}>
+            <span>{option.name}</span>
+            <div>{filter.options[`${option.filterProperty}`]}</div>
+            <HsvPicker on:colorChange={colorCallback} startColor={'#FBFBFB'} />
           </div>
         {/if}
       {/each}

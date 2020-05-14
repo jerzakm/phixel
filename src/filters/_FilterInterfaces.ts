@@ -1,8 +1,9 @@
 export enum FilterOptionType {
-  SLIDER = 'slider'
+  SLIDER = 'slider',
+  COLORPICKER = 'colorPicker'
 }
 
-export interface FilterOptionSlider {
+export interface Slider {
   name: string
   desc: string
   type: FilterOptionType
@@ -12,10 +13,19 @@ export interface FilterOptionSlider {
   filterProperty: string
 }
 
+export interface ColorPicker {
+  name: string
+  desc: string
+  type: FilterOptionType
+  qty: number
+  color: string[]
+  filterProperty: string
+}
+
 export interface FilterBuilder {
   filterRef: string
   name: string
   build: any,
-  options?: (FilterOptionSlider)[],
+  options?: (Slider | ColorPicker)[],
   defaultOptions?: any
 }
