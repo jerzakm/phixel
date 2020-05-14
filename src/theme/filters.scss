@@ -21,7 +21,25 @@
 }
 
 .filter-options-colorPicker-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
+  display: grid;
+  grid-column-gap: 5px;
+  grid-template-columns: 2fr 3fr;
+  // background-color: #2196F3;
+  padding: 5px;
+
+  .filter-name {
+    display: flex;
+    align-items: center;
+  }
+
+  .color-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+    }
+  }
 }

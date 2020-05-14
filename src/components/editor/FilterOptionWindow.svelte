@@ -1,8 +1,7 @@
 <script>
   import { filterDictionary } from "../../filterManager.ts";
-  import Slider from "@smui/slider";
-  import { HsvPicker } from "svelte-color-picker";
   import Textfield, { Input, Textarea } from "@smui/textfield";
+  import ColorPicker from "./ColorPicker.svelte";
 
   let filter;
 
@@ -38,16 +37,10 @@
     const i = tempProject.filters.findIndex(f => {
       return f.id == filter.id;
     });
-    if (i) {
-      tempProject.filters[i] = filter;
-      currentProject.set(tempProject);
-    }
-    // tempProject.filters[filter.value.id] = filter.value;
+    tempProject.filters[i] = filter;
+    currentProject.set(tempProject);
+    console.log("update");
     filterUpdate.set(true);
-  }
-
-  function colorCallback(rgba) {
-    console.log(rgba.detail);
   }
 
   $: filter && update();
@@ -83,22 +76,20 @@
               min={option.min}
               max={option.max}
               step={option.step} />
-            <!-- <Slider
-              class="filter-options-slider"
-              bind:value={filter.options[`${option.filterProperty}`]}
-              min={option.min}
-              max={option.max}
-              step={option.step}
-              discrete /> -->
             <span>{filter.options[`${option.filterProperty}`]}</span>
           </div>
         {:else if option.type == 'colorPicker'}
-          <div
-            class="filter-options-colorPicker-container"
-            on:click={() => console.log(filter, option)}>
-            <span>{option.name}</span>
-            <div>{filter.options[`${option.filterProperty}`]}</div>
-            <HsvPicker on:colorChange={colorCallback} startColor={'#FBFBFB'} />
+          <div class="filter-options-colorPicker-container">
+            <span class="filter-name">{option.name}</span>
+            <div class="color-list">
+              {#each filter.options[`${option.filterProperty}`] as color, i}
+                <ColorPicker
+                  {color}
+                  on:colorChange={event => {
+                    filter.options[`${option.filterProperty}`][i] = event.detail.color;
+                  }} />
+              {/each}
+            </div>
           </div>
         {/if}
       {/each}

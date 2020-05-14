@@ -22,6 +22,7 @@ export const createExampleProject = () => {
       const filter: any = Object.create(f)
       filter.id = uuidv4()
       filter.enabled = true
+      filter.options = f.defaultOptions
       project.filters.push(filter)
     }
   }

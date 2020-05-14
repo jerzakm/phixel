@@ -3,6 +3,7 @@ import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
 import { hexTo0xColor } from '../util'
 
 const build = (options: any) => {
+  console.log(options.originalColor)
   const o = Object.create(ReplaceColor.defaultOptions)
   Object.assign(o, options)
 
@@ -14,8 +15,8 @@ export const ReplaceColor: FilterBuilder = {
   name: 'Replace Color',
   build,
   defaultOptions: {
-    originalColor: [`#FF0000`],
-    newColor: [`#000000`],
+    originalColor: [`#000000`],
+    newColor: [`#FFFFFF`],
     epsilon: 0.4
   },
   options: [
@@ -35,6 +36,14 @@ export const ReplaceColor: FilterBuilder = {
       qty: 1,
       color: [],
       filterProperty: 'originalColor'
+    },
+    {
+      name: 'New Color',
+      desc: '',
+      type: FilterOptionType.COLORPICKER,
+      qty: 1,
+      color: [],
+      filterProperty: 'newColor'
     },
   ]
 }
