@@ -11,8 +11,6 @@
 
   list.push({ id: 0, name: "Layer A" });
   list.push({ id: 1, name: "Layer B" });
-
-  // $: list && filterArray.set(list) &&console.log('changed filter list')
 </script>
 
 <style>

@@ -29,3 +29,9 @@ export interface FilterBuilder {
   options?: (Slider | ColorPicker)[],
   defaultOptions?: any
 }
+
+export interface RgbColor {
+  r: number
+  g: number
+  b: number
+}

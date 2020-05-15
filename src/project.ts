@@ -18,13 +18,13 @@ export const createExampleProject = () => {
   }
 
   for (const f of filterDictionary) {
-    if (f.filterRef == 'colorReplace') {
-      const filter: any = Object.create(f)
-      filter.id = uuidv4()
-      filter.enabled = true
-      filter.options = f.defaultOptions
-      project.filters.push(filter)
-    }
+    // if (f.filterRef == 'paletteLimiter') {
+    const filter: any = Object.create(f)
+    filter.id = uuidv4()
+    filter.enabled = true
+    filter.options = f.defaultOptions
+    project.filters.push(filter)
+    // }
   }
 
   return project

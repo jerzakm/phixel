@@ -1,8 +1,9 @@
 <script>
   import Pickr from "@simonwep/pickr";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
   let el;
+  let pickr;
 
   export let color;
 
@@ -10,10 +11,12 @@
 
   const dispatch = createEventDispatcher();
 
-  $: console.log(color);
+  onDestroy(() => {
+    pickr.destroyAndRemove();
+  });
 
   onMount(() => {
-    const pickr = Pickr.create({
+    pickr = Pickr.create({
       el: el,
       theme: "nano", // or 'monolith', or 'nano'
       default: color,
@@ -63,7 +66,6 @@
         // console.log("show", color, instance);
       })
       .on("save", (color, instance) => {
-        console.log("save", color.toHEXA().toString());
         dispatch("colorChange", {
           color: color.toHEXA().toString()
         });
@@ -91,4 +93,4 @@
 
 </style>
 
-<div bind:this={el} />
+<div bind:this={el} id={color} />

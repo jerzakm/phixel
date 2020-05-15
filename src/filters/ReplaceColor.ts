@@ -3,7 +3,6 @@ import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
 import { hexTo0xColor } from '../util'
 
 const build = (options: any) => {
-  console.log(options.originalColor)
   const o = Object.create(ReplaceColor.defaultOptions)
   Object.assign(o, options)
 

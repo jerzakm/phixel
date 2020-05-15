@@ -12,7 +12,7 @@ export const Bloom: FilterBuilder = {
   name: 'Bloom',
   build,
   defaultOptions: {
-    treshold: 0.5, bloomScale: 1, brightness: 1, blur: 8, quality: 4, kernel: null, pixelSize: 1
+    treshold: 0.5, bloomScale: 1, brightness: 1, blur: 8, quality: 4, pixelSize: 1
   },
   options: [
     {
@@ -29,7 +29,7 @@ export const Bloom: FilterBuilder = {
       desc: '',
       type: FilterOptionType.SLIDER,
       min: 0,
-      max: 10,
+      max: 3,
       step: 0.01,
       filterProperty: 'brightness'
     },

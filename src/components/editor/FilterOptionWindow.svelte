@@ -39,7 +39,6 @@
     });
     tempProject.filters[i] = filter;
     currentProject.set(tempProject);
-    console.log("update");
     filterUpdate.set(true);
   }
 
