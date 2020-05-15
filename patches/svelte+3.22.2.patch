@@ -1,0 +1,1500 @@
+diff --git a/node_modules/svelte/internal/index.mjs b/node_modules/svelte/internal/index.mjs
+index 3b738a0..cf0fb09 100644
+--- a/node_modules/svelte/internal/index.mjs
++++ b/node_modules/svelte/internal/index.mjs
+@@ -1,42 +1,58 @@
+-function noop() { }
++function noop() {}
+ const identity = x => x;
++
+ function assign(tar, src) {
+     // @ts-ignore
+     for (const k in src)
+         tar[k] = src[k];
+     return tar;
+ }
++
+ function is_promise(value) {
+     return value && typeof value === 'object' && typeof value.then === 'function';
+ }
++
+ function add_location(element, file, line, column, char) {
+     element.__svelte_meta = {
+-        loc: { file, line, column, char }
++        loc: {
++            file,
++            line,
++            column,
++            char
++        }
+     };
+ }
++
+ function run(fn) {
+     return fn();
+ }
++
+ function blank_object() {
+     return Object.create(null);
+ }
++
+ function run_all(fns) {
+     fns.forEach(run);
+ }
++
+ function is_function(thing) {
+     return typeof thing === 'function';
+ }
++
+ function safe_not_equal(a, b) {
+     return a != a ? b == b : a !== b || ((a && typeof a === 'object') || typeof a === 'function');
+ }
++
+ function not_equal(a, b) {
+     return a != a ? b == b : a !== b;
+ }
++
+ function validate_store(store, name) {
+     if (store != null && typeof store.subscribe !== 'function') {
+         throw new Error(`'${name}' is not a store with a 'subscribe' method`);
+     }
+ }
++
+ function subscribe(store, ...callbacks) {
+     if (store == null) {
+         return noop;
+@@ -44,25 +60,30 @@ function subscribe(store, ...callbacks) {
+     const unsub = store.subscribe(...callbacks);
+     return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+ }
++
+ function get_store_value(store) {
+     let value;
+     subscribe(store, _ => value = _)();
+     return value;
+ }
++
+ function component_subscribe(component, store, callback) {
+     component.$$.on_destroy.push(subscribe(store, callback));
+ }
++
+ function create_slot(definition, ctx, $$scope, fn) {
+     if (definition) {
+         const slot_ctx = get_slot_context(definition, ctx, $$scope, fn);
+         return definition[0](slot_ctx);
+     }
+ }
++
+ function get_slot_context(definition, ctx, $$scope, fn) {
+-    return definition[1] && fn
+-        ? assign($$scope.ctx.slice(), definition[1](fn(ctx)))
+-        : $$scope.ctx;
++    return definition[1] && fn ?
++        assign($$scope.ctx.slice(), definition[1](fn(ctx))) :
++        $$scope.ctx;
+ }
++
+ function get_slot_changes(definition, $$scope, dirty, fn) {
+     if (definition[2] && fn) {
+         const lets = definition[2](fn(dirty));
+@@ -81,6 +102,7 @@ function get_slot_changes(definition, $$scope, dirty, fn) {
+     }
+     return $$scope.dirty;
+ }
++
+ function exclude_internal_props(props) {
+     const result = {};
+     for (const k in props)
+@@ -88,6 +110,7 @@ function exclude_internal_props(props) {
+             result[k] = props[k];
+     return result;
+ }
++
+ function compute_rest_props(props, keys) {
+     const rest = {};
+     keys = new Set(keys);
+@@ -96,6 +119,7 @@ function compute_rest_props(props, keys) {
+             rest[k] = props[k];
+     return rest;
+ }
++
+ function once(fn) {
+     let ran = false;
+     return function (...args) {
+@@ -105,32 +129,37 @@ function once(fn) {
+         fn.call(this, ...args);
+     };
+ }
++
+ function null_to_empty(value) {
+     return value == null ? '' : value;
+ }
++
+ function set_store_value(store, ret, value = ret) {
+     store.set(value);
+     return ret;
+ }
+ const has_prop = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
++
+ function action_destroyer(action_result) {
+     return action_result && is_function(action_result.destroy) ? action_result.destroy : noop;
+ }
+ 
+ const is_client = typeof window !== 'undefined';
+-let now = is_client
+-    ? () => window.performance.now()
+-    : () => Date.now();
++let now = is_client ?
++    () => window.performance.now() :
++    () => Date.now();
+ let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
+ // used internally for testing
+ function set_now(fn) {
+     now = fn;
+ }
++
+ function set_raf(fn) {
+     raf = fn;
+ }
+ 
+ const tasks = new Set();
++
+ function run_tasks(now) {
+     tasks.forEach(task => {
+         if (!task.c(now)) {
+@@ -157,7 +186,10 @@ function loop(callback) {
+         raf(run_tasks);
+     return {
+         promise: new Promise(fulfill => {
+-            tasks.add(task = { c: callback, f: fulfill });
++            tasks.add(task = {
++                c: callback,
++                f: fulfill
++            });
+         }),
+         abort() {
+             tasks.delete(task);
+@@ -168,52 +200,71 @@ function loop(callback) {
+ function append(target, node) {
+     target.appendChild(node);
+ }
++
+ function insert(target, node, anchor) {
+     target.insertBefore(node, anchor || null);
+ }
++
+ function detach(node) {
+-    node.parentNode.removeChild(node);
++    if (node.parentNode) {
++        node.parentNode.removeChild(node);
++    } else {
++        console.warn('Error: patch-package: svelte detach failed')
++    }
+ }
++
+ function destroy_each(iterations, detaching) {
+     for (let i = 0; i < iterations.length; i += 1) {
+         if (iterations[i])
+             iterations[i].d(detaching);
+     }
+ }
++
+ function element(name) {
+     return document.createElement(name);
+ }
++
+ function element_is(name, is) {
+-    return document.createElement(name, { is });
++    return document.createElement(name, {
++        is
++    });
+ }
++
+ function object_without_properties(obj, exclude) {
+     const target = {};
+     for (const k in obj) {
+         if (has_prop(obj, k)
+             // @ts-ignore
+-            && exclude.indexOf(k) === -1) {
++            &&
++            exclude.indexOf(k) === -1) {
+             // @ts-ignore
+             target[k] = obj[k];
+         }
+     }
+     return target;
+ }
++
+ function svg_element(name) {
+     return document.createElementNS('http://www.w3.org/2000/svg', name);
+ }
++
+ function text(data) {
+     return document.createTextNode(data);
+ }
++
+ function space() {
+     return text(' ');
+ }
++
+ function empty() {
+     return text('');
+ }
++
+ function listen(node, event, handler, options) {
+     node.addEventListener(event, handler, options);
+     return () => node.removeEventListener(event, handler, options);
+ }
++
+ function prevent_default(fn) {
+     return function (event) {
+         event.preventDefault();
+@@ -221,6 +272,7 @@ function prevent_default(fn) {
+         return fn.call(this, event);
+     };
+ }
++
+ function stop_propagation(fn) {
+     return function (event) {
+         event.stopPropagation();
+@@ -228,6 +280,7 @@ function stop_propagation(fn) {
+         return fn.call(this, event);
+     };
+ }
++
+ function self(fn) {
+     return function (event) {
+         // @ts-ignore
+@@ -235,46 +288,48 @@ function self(fn) {
+             fn.call(this, event);
+     };
+ }
++
+ function attr(node, attribute, value) {
+     if (value == null)
+         node.removeAttribute(attribute);
+     else if (node.getAttribute(attribute) !== value)
+         node.setAttribute(attribute, value);
+ }
++
+ function set_attributes(node, attributes) {
+     // @ts-ignore
+     const descriptors = Object.getOwnPropertyDescriptors(node.__proto__);
+     for (const key in attributes) {
+         if (attributes[key] == null) {
+             node.removeAttribute(key);
+-        }
+-        else if (key === 'style') {
++        } else if (key === 'style') {
+             node.style.cssText = attributes[key];
+-        }
+-        else if (key === '__value' || descriptors[key] && descriptors[key].set) {
++        } else if (key === '__value' || descriptors[key] && descriptors[key].set) {
+             node[key] = attributes[key];
+-        }
+-        else {
++        } else {
+             attr(node, key, attributes[key]);
+         }
+     }
+ }
++
+ function set_svg_attributes(node, attributes) {
+     for (const key in attributes) {
+         attr(node, key, attributes[key]);
+     }
+ }
++
+ function set_custom_element_data(node, prop, value) {
+     if (prop in node) {
+         node[prop] = value;
+-    }
+-    else {
++    } else {
+         attr(node, prop, value);
+     }
+ }
++
+ function xlink_attr(node, attribute, value) {
+     node.setAttributeNS('http://www.w3.org/1999/xlink', attribute, value);
+ }
++
+ function get_binding_group_value(group) {
+     const value = [];
+     for (let i = 0; i < group.length; i += 1) {
+@@ -283,19 +338,26 @@ function get_binding_group_value(group) {
+     }
+     return value;
+ }
++
+ function to_number(value) {
+     return value === '' ? undefined : +value;
+ }
++
+ function time_ranges_to_array(ranges) {
+     const array = [];
+     for (let i = 0; i < ranges.length; i += 1) {
+-        array.push({ start: ranges.start(i), end: ranges.end(i) });
++        array.push({
++            start: ranges.start(i),
++            end: ranges.end(i)
++        });
+     }
+     return array;
+ }
++
+ function children(element) {
+     return Array.from(element.childNodes);
+ }
++
+ function claim_element(nodes, name, attributes, svg) {
+     for (let i = 0; i < nodes.length; i += 1) {
+         const node = nodes[i];
+@@ -305,8 +367,7 @@ function claim_element(nodes, name, attributes, svg) {
+                 const attribute = node.attributes[j];
+                 if (attributes[attribute.name]) {
+                     j++;
+-                }
+-                else {
++                } else {
+                     node.removeAttribute(attribute.name);
+                 }
+             }
+@@ -315,6 +376,7 @@ function claim_element(nodes, name, attributes, svg) {
+     }
+     return svg ? svg_element(name) : element(name);
+ }
++
+ function claim_text(nodes, data) {
+     for (let i = 0; i < nodes.length; i += 1) {
+         const node = nodes[i];
+@@ -325,30 +387,35 @@ function claim_text(nodes, data) {
+     }
+     return text(data);
+ }
++
+ function claim_space(nodes) {
+     return claim_text(nodes, ' ');
+ }
++
+ function set_data(text, data) {
+     data = '' + data;
+     if (text.data !== data)
+         text.data = data;
+ }
++
+ function set_input_value(input, value) {
+     if (value != null || input.value) {
+         input.value = value;
+     }
+ }
++
+ function set_input_type(input, type) {
+     try {
+         input.type = type;
+-    }
+-    catch (e) {
++    } catch (e) {
+         // do nothing
+     }
+ }
++
+ function set_style(node, key, value, important) {
+     node.style.setProperty(key, value, important ? 'important' : '');
+ }
++
+ function select_option(select, value) {
+     for (let i = 0; i < select.options.length; i += 1) {
+         const option = select.options[i];
+@@ -358,22 +425,26 @@ function select_option(select, value) {
+         }
+     }
+ }
++
+ function select_options(select, value) {
+     for (let i = 0; i < select.options.length; i += 1) {
+         const option = select.options[i];
+         option.selected = ~value.indexOf(option.__value);
+     }
+ }
++
+ function select_value(select) {
+     const selected_option = select.querySelector(':checked') || select.options[0];
+     return selected_option && selected_option.__value;
+ }
++
+ function select_multiple_value(select) {
+     return [].map.call(select.querySelectorAll(':checked'), option => option.__value);
+ }
+ // unfortunately this can't be a constant as that wouldn't be tree-shakeable
+ // so we cache the result instead
+ let crossorigin;
++
+ function is_crossorigin() {
+     if (crossorigin === undefined) {
+         crossorigin = false;
+@@ -381,13 +452,13 @@ function is_crossorigin() {
+             if (typeof window !== 'undefined' && window.parent) {
+                 void window.parent.document;
+             }
+-        }
+-        catch (error) {
++        } catch (error) {
+             crossorigin = true;
+         }
+     }
+     return crossorigin;
+ }
++
+ function add_resize_listener(node, fn) {
+     const computed_style = getComputedStyle(node);
+     const z_index = (parseInt(computed_style.zIndex) || 0) - 1;
+@@ -406,8 +477,7 @@ function add_resize_listener(node, fn) {
+             if (event.source === iframe.contentWindow)
+                 fn();
+         });
+-    }
+-    else {
++    } else {
+         iframe.src = 'about:blank';
+         iframe.onload = () => {
+             unsubscribe = listen(iframe.contentWindow, 'resize', fn);
+@@ -420,14 +490,17 @@ function add_resize_listener(node, fn) {
+             unsubscribe();
+     };
+ }
++
+ function toggle_class(element, name, toggle) {
+     element.classList[toggle ? 'add' : 'remove'](name);
+ }
++
+ function custom_event(type, detail) {
+     const e = document.createEvent('CustomEvent');
+     e.initCustomEvent(type, false, false, detail);
+     return e;
+ }
++
+ function query_selector_all(selector, parent = document.body) {
+     return Array.from(parent.querySelectorAll(selector));
+ }
+@@ -467,6 +540,7 @@ function hash(str) {
+         hash = ((hash << 5) - hash) ^ str.charCodeAt(i);
+     return hash >>> 0;
+ }
++
+ function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+     const step = 16.666 / duration;
+     let keyframes = '{\n';
+@@ -489,11 +563,13 @@ function create_rule(node, a, b, duration, delay, ease, fn, uid = 0) {
+     active += 1;
+     return name;
+ }
++
+ function delete_rule(node, name) {
+     const previous = (node.style.animation || '').split(', ');
+-    const next = previous.filter(name
+-        ? anim => anim.indexOf(name) < 0 // remove specific animation
+-        : anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
++    const next = previous.filter(name ?
++        anim => anim.indexOf(name) < 0 // remove specific animation
++        :
++        anim => anim.indexOf('__svelte') === -1 // remove all Svelte animations
+     );
+     const deleted = previous.length - next.length;
+     if (deleted) {
+@@ -503,6 +579,7 @@ function delete_rule(node, name) {
+             clear_rules();
+     }
+ }
++
+ function clear_rules() {
+     raf(() => {
+         if (active)
+@@ -524,14 +601,20 @@ function create_animation(node, from, fn, params) {
+     const to = node.getBoundingClientRect();
+     if (from.left === to.left && from.right === to.right && from.top === to.top && from.bottom === to.bottom)
+         return noop;
+-    const { delay = 0, duration = 300, easing = identity, 
+-    // @ts-ignore todo: should this be separated from destructuring? Or start/end added to public api and documentation?
+-    start: start_time = now() + delay, 
+-    // @ts-ignore todo:
+-    end = start_time + duration, tick = noop, css } = fn(node, { from, to }, params);
++    const {
++        delay = 0, duration = 300, easing = identity,
++            // @ts-ignore todo: should this be separated from destructuring? Or start/end added to public api and documentation?
++            start: start_time = now() + delay,
++            // @ts-ignore todo:
++            end = start_time + duration, tick = noop, css
++    } = fn(node, {
++        from,
++        to
++    }, params);
+     let running = true;
+     let started = false;
+     let name;
++
+     function start() {
+         if (css) {
+             name = create_rule(node, 0, 1, duration, delay, easing, css);
+@@ -540,6 +623,7 @@ function create_animation(node, from, fn, params) {
+             started = true;
+         }
+     }
++
+     function stop() {
+         if (css)
+             delete_rule(node, name);
+@@ -567,10 +651,14 @@ function create_animation(node, from, fn, params) {
+     tick(0, 1);
+     return stop;
+ }
++
+ function fix_position(node) {
+     const style = getComputedStyle(node);
+     if (style.position !== 'absolute' && style.position !== 'fixed') {
+-        const { width, height } = style;
++        const {
++            width,
++            height
++        } = style;
+         const a = node.getBoundingClientRect();
+         node.style.position = 'absolute';
+         node.style.width = width;
+@@ -578,6 +666,7 @@ function fix_position(node) {
+         add_transform(node, a);
+     }
+ }
++
+ function add_transform(node, a) {
+     const b = node.getBoundingClientRect();
+     if (a.left !== b.left || a.top !== b.top) {
+@@ -588,26 +677,33 @@ function add_transform(node, a) {
+ }
+ 
+ let current_component;
++
+ function set_current_component(component) {
+     current_component = component;
+ }
++
+ function get_current_component() {
+     if (!current_component)
+         throw new Error(`Function called outside component initialization`);
+     return current_component;
+ }
++
+ function beforeUpdate(fn) {
+     get_current_component().$$.before_update.push(fn);
+ }
++
+ function onMount(fn) {
+     get_current_component().$$.on_mount.push(fn);
+ }
++
+ function afterUpdate(fn) {
+     get_current_component().$$.after_update.push(fn);
+ }
++
+ function onDestroy(fn) {
+     get_current_component().$$.on_destroy.push(fn);
+ }
++
+ function createEventDispatcher() {
+     const component = get_current_component();
+     return (type, detail) => {
+@@ -622,9 +718,11 @@ function createEventDispatcher() {
+         }
+     };
+ }
++
+ function setContext(key, context) {
+     get_current_component().$$.context.set(key, context);
+ }
++
+ function getContext(key) {
+     return get_current_component().$$.context.get(key);
+ }
+@@ -639,30 +737,37 @@ function bubble(component, event) {
+ }
+ 
+ const dirty_components = [];
+-const intros = { enabled: false };
++const intros = {
++    enabled: false
++};
+ const binding_callbacks = [];
+ const render_callbacks = [];
+ const flush_callbacks = [];
+ const resolved_promise = Promise.resolve();
+ let update_scheduled = false;
++
+ function schedule_update() {
+     if (!update_scheduled) {
+         update_scheduled = true;
+         resolved_promise.then(flush);
+     }
+ }
++
+ function tick() {
+     schedule_update();
+     return resolved_promise;
+ }
++
+ function add_render_callback(fn) {
+     render_callbacks.push(fn);
+ }
++
+ function add_flush_callback(fn) {
+     flush_callbacks.push(fn);
+ }
+ let flushing = false;
+ const seen_callbacks = new Set();
++
+ function flush() {
+     if (flushing)
+         return;
+@@ -698,6 +803,7 @@ function flush() {
+     flushing = false;
+     seen_callbacks.clear();
+ }
++
+ function update($$) {
+     if ($$.fragment !== null) {
+         $$.update();
+@@ -710,6 +816,7 @@ function update($$) {
+ }
+ 
+ let promise;
++
+ function wait() {
+     if (!promise) {
+         promise = Promise.resolve();
+@@ -719,11 +826,13 @@ function wait() {
+     }
+     return promise;
+ }
++
+ function dispatch(node, direction, kind) {
+     node.dispatchEvent(custom_event(`${direction ? 'intro' : 'outro'}${kind}`));
+ }
+ const outroing = new Set();
+ let outros;
++
+ function group_outros() {
+     outros = {
+         r: 0,
+@@ -731,18 +840,21 @@ function group_outros() {
+         p: outros // parent group
+     };
+ }
++
+ function check_outros() {
+     if (!outros.r) {
+         run_all(outros.c);
+     }
+     outros = outros.p;
+ }
++
+ function transition_in(block, local) {
+     if (block && block.i) {
+         outroing.delete(block);
+         block.i(local);
+     }
+ }
++
+ function transition_out(block, local, detach, callback) {
+     if (block && block.o) {
+         if (outroing.has(block))
+@@ -759,19 +871,26 @@ function transition_out(block, local, detach, callback) {
+         block.o(local);
+     }
+ }
+-const null_transition = { duration: 0 };
++const null_transition = {
++    duration: 0
++};
++
+ function create_in_transition(node, fn, params) {
+     let config = fn(node, params);
+     let running = false;
+     let animation_name;
+     let task;
+     let uid = 0;
++
+     function cleanup() {
+         if (animation_name)
+             delete_rule(node, animation_name);
+     }
++
+     function go() {
+-        const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
++        const {
++            delay = 0, duration = 300, easing = identity, tick = noop, css
++        } = config || null_transition;
+         if (css)
+             animation_name = create_rule(node, 0, 1, duration, delay, easing, css, uid++);
+         tick(0, 1);
+@@ -806,8 +925,7 @@ function create_in_transition(node, fn, params) {
+             if (is_function(config)) {
+                 config = config();
+                 wait().then(go);
+-            }
+-            else {
++            } else {
+                 go();
+             }
+         },
+@@ -822,14 +940,18 @@ function create_in_transition(node, fn, params) {
+         }
+     };
+ }
++
+ function create_out_transition(node, fn, params) {
+     let config = fn(node, params);
+     let running = true;
+     let animation_name;
+     const group = outros;
+     group.r += 1;
++
+     function go() {
+-        const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
++        const {
++            delay = 0, duration = 300, easing = identity, tick = noop, css
++        } = config || null_transition;
+         if (css)
+             animation_name = create_rule(node, 1, 0, duration, delay, easing, css);
+         const start_time = now() + delay;
+@@ -861,8 +983,7 @@ function create_out_transition(node, fn, params) {
+             config = config();
+             go();
+         });
+-    }
+-    else {
++    } else {
+         go();
+     }
+     return {
+@@ -878,16 +999,19 @@ function create_out_transition(node, fn, params) {
+         }
+     };
+ }
++
+ function create_bidirectional_transition(node, fn, params, intro) {
+     let config = fn(node, params);
+     let t = intro ? 0 : 1;
+     let running_program = null;
+     let pending_program = null;
+     let animation_name = null;
++
+     function clear_animation() {
+         if (animation_name)
+             delete_rule(node, animation_name);
+     }
++
+     function init(program, duration) {
+         const d = program.b - t;
+         duration *= Math.abs(d);
+@@ -901,8 +1025,11 @@ function create_bidirectional_transition(node, fn, params, intro) {
+             group: program.group
+         };
+     }
++
+     function go(b) {
+-        const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
++        const {
++            delay = 0, duration = 300, easing = identity, tick = noop, css
++        } = config || null_transition;
+         const program = {
+             start: now() + delay,
+             b
+@@ -914,8 +1041,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
+         }
+         if (running_program) {
+             pending_program = program;
+-        }
+-        else {
++        } else {
+             // if this is an intro, and there's a delay, we need to do
+             // an initial tick and/or apply CSS animation immediately
+             if (css) {
+@@ -945,16 +1071,14 @@ function create_bidirectional_transition(node, fn, params, intro) {
+                             if (running_program.b) {
+                                 // intro — we can tidy up immediately
+                                 clear_animation();
+-                            }
+-                            else {
++                            } else {
+                                 // outro — needs to be coordinated
+                                 if (!--running_program.group.r)
+                                     run_all(running_program.group.c);
+                             }
+                         }
+                         running_program = null;
+-                    }
+-                    else if (now >= running_program.start) {
++                    } else if (now >= running_program.start) {
+                         const p = now - running_program.start;
+                         t = running_program.a + running_program.d * easing(p / running_program.duration);
+                         tick(t, 1 - t);
+@@ -972,8 +1096,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
+                     config = config();
+                     go(b);
+                 });
+-            }
+-            else {
++            } else {
+                 go(b);
+             }
+         },
+@@ -986,6 +1109,7 @@ function create_bidirectional_transition(node, fn, params, intro) {
+ 
+ function handle_promise(promise, info) {
+     const token = info.token = {};
++
+     function update(type, index, key, value) {
+         if (info.token !== token)
+             return;
+@@ -1008,8 +1132,7 @@ function handle_promise(promise, info) {
+                         check_outros();
+                     }
+                 });
+-            }
+-            else {
++            } else {
+                 info.block.d(1);
+             }
+             block.c();
+@@ -1040,8 +1163,7 @@ function handle_promise(promise, info) {
+             update(info.pending, 0);
+             return true;
+         }
+-    }
+-    else {
++    } else {
+         if (info.current !== info.then) {
+             update(info.then, 1, info.value, promise);
+             return true;
+@@ -1050,29 +1172,33 @@ function handle_promise(promise, info) {
+     }
+ }
+ 
+-const globals = (typeof window !== 'undefined'
+-    ? window
+-    : typeof globalThis !== 'undefined'
+-        ? globalThis
+-        : global);
++const globals = (typeof window !== 'undefined' ?
++    window :
++    typeof globalThis !== 'undefined' ?
++    globalThis :
++    global);
+ 
+ function destroy_block(block, lookup) {
+     block.d(1);
+     lookup.delete(block.key);
+ }
++
+ function outro_and_destroy_block(block, lookup) {
+     transition_out(block, 1, 1, () => {
+         lookup.delete(block.key);
+     });
+ }
++
+ function fix_and_destroy_block(block, lookup) {
+     block.f();
+     destroy_block(block, lookup);
+ }
++
+ function fix_and_outro_and_destroy_block(block, lookup) {
+     block.f();
+     outro_and_destroy_block(block, lookup);
+ }
++
+ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block, next, get_context) {
+     let o = old_blocks.length;
+     let n = list.length;
+@@ -1091,8 +1217,7 @@ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, looku
+         if (!block) {
+             block = create_each_block(key, child_ctx);
+             block.c();
+-        }
+-        else if (dynamic) {
++        } else if (dynamic) {
+             block.p(child_ctx, dirty);
+         }
+         new_lookup.set(key, new_blocks[i] = block);
+@@ -1101,6 +1226,7 @@ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, looku
+     }
+     const will_move = new Set();
+     const did_move = new Set();
++
+     function insert(block) {
+         transition_in(block, 1);
+         block.m(node, next, lookup.has(block.key));
+@@ -1118,23 +1244,18 @@ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, looku
+             next = new_block.first;
+             o--;
+             n--;
+-        }
+-        else if (!new_lookup.has(old_key)) {
++        } else if (!new_lookup.has(old_key)) {
+             // remove old block
+             destroy(old_block, lookup);
+             o--;
+-        }
+-        else if (!lookup.has(new_key) || will_move.has(new_key)) {
++        } else if (!lookup.has(new_key) || will_move.has(new_key)) {
+             insert(new_block);
+-        }
+-        else if (did_move.has(old_key)) {
++        } else if (did_move.has(old_key)) {
+             o--;
+-        }
+-        else if (deltas.get(new_key) > deltas.get(old_key)) {
++        } else if (deltas.get(new_key) > deltas.get(old_key)) {
+             did_move.add(new_key);
+             insert(new_block);
+-        }
+-        else {
++        } else {
+             will_move.add(old_key);
+             o--;
+         }
+@@ -1148,6 +1269,7 @@ function update_keyed_each(old_blocks, dirty, get_key, dynamic, ctx, list, looku
+         insert(new_blocks[n - 1]);
+     return new_blocks;
+ }
++
+ function validate_each_keys(ctx, list, get_context, get_key) {
+     const keys = new Set();
+     for (let i = 0; i < list.length; i++) {
+@@ -1162,7 +1284,9 @@ function validate_each_keys(ctx, list, get_context, get_key) {
+ function get_spread_update(levels, updates) {
+     const update = {};
+     const to_null_out = {};
+-    const accounted_for = { $$scope: 1 };
++    const accounted_for = {
++        $$scope: 1
++    };
+     let i = levels.length;
+     while (i--) {
+         const o = levels[i];
+@@ -1179,8 +1303,7 @@ function get_spread_update(levels, updates) {
+                 }
+             }
+             levels[i] = n;
+-        }
+-        else {
++        } else {
+             for (const key in o) {
+                 accounted_for[key] = 1;
+             }
+@@ -1192,6 +1315,7 @@ function get_spread_update(levels, updates) {
+     }
+     return update;
+ }
++
+ function get_spread_object(spread_props) {
+     return typeof spread_props === 'object' && spread_props !== null ? spread_props : {};
+ }
+@@ -1232,8 +1356,7 @@ function spread(args, classes_to_add) {
+     if (classes_to_add) {
+         if (attributes.class == null) {
+             attributes.class = classes_to_add;
+-        }
+-        else {
++        } else {
+             attributes.class += ' ' + classes_to_add;
+         }
+     }
+@@ -1247,8 +1370,7 @@ function spread(args, classes_to_add) {
+         else if (boolean_attributes.has(name.toLowerCase())) {
+             if (value)
+                 str += " " + name;
+-        }
+-        else if (value != null) {
++        } else if (value != null) {
+             str += ` ${name}="${String(value).replace(/"/g, '&#34;').replace(/'/g, '&#39;')}"`;
+         }
+     });
+@@ -1261,9 +1383,11 @@ const escaped = {
+     '<': '&lt;',
+     '>': '&gt;'
+ };
++
+ function escape(html) {
+     return String(html).replace(/["'&<>]/g, match => escaped[match]);
+ }
++
+ function each(items, fn) {
+     let str = '';
+     for (let i = 0; i < items.length; i += 1) {
+@@ -1274,6 +1398,7 @@ function each(items, fn) {
+ const missing_component = {
+     $$render: () => ''
+ };
++
+ function validate_component(component, name) {
+     if (!component || !component.$$render) {
+         if (name === 'svelte:component')
+@@ -1282,12 +1407,14 @@ function validate_component(component, name) {
+     }
+     return component;
+ }
++
+ function debug(file, line, column, values) {
+     console.log(`{@debug} ${file ? file + ' ' : ''}(${line}:${column})`); // eslint-disable-line no-console
+     console.log(values); // eslint-disable-line no-console
+     return '';
+ }
+ let on_destroy;
++
+ function create_ssr_component(fn) {
+     function $$render(result, props, bindings, slots) {
+         const parent_component = current_component;
+@@ -1300,7 +1427,9 @@ function create_ssr_component(fn) {
+             after_update: [],
+             callbacks: blank_object()
+         };
+-        set_current_component({ $$ });
++        set_current_component({
++            $$
++        });
+         const html = fn(result, props, bindings, slots);
+         set_current_component(parent_component);
+         return html;
+@@ -1308,7 +1437,11 @@ function create_ssr_component(fn) {
+     return {
+         render: (props = {}, options = {}) => {
+             on_destroy = [];
+-            const result = { title: '', head: '', css: new Set() };
++            const result = {
++                title: '',
++                head: '',
++                css: new Set()
++            };
+             const html = $$render(result, props, {}, options);
+             run_all(on_destroy);
+             return {
+@@ -1323,11 +1456,13 @@ function create_ssr_component(fn) {
+         $$render
+     };
+ }
++
+ function add_attribute(name, value, boolean) {
+     if (value == null || (boolean && !value))
+         return '';
+     return ` ${name}${value === true ? '' : `=${typeof value === 'string' ? JSON.stringify(escape(value)) : `"${value}"`}`}`;
+ }
++
+ function add_classes(classes) {
+     return classes ? ` class="${classes}"` : ``;
+ }
+@@ -1339,22 +1474,29 @@ function bind(component, name, callback) {
+         callback(component.$$.ctx[index]);
+     }
+ }
++
+ function create_component(block) {
+     block && block.c();
+ }
++
+ function claim_component(block, parent_nodes) {
+     block && block.l(parent_nodes);
+ }
++
+ function mount_component(component, target, anchor) {
+-    const { fragment, on_mount, on_destroy, after_update } = component.$$;
++    const {
++        fragment,
++        on_mount,
++        on_destroy,
++        after_update
++    } = component.$$;
+     fragment && fragment.m(target, anchor);
+     // onMount happens before the initial afterUpdate
+     add_render_callback(() => {
+         const new_on_destroy = on_mount.map(run).filter(is_function);
+         if (on_destroy) {
+             on_destroy.push(...new_on_destroy);
+-        }
+-        else {
++        } else {
+             // Edge case - component was destroyed immediately,
+             // most likely as a result of a binding initialising
+             run_all(new_on_destroy);
+@@ -1363,6 +1505,7 @@ function mount_component(component, target, anchor) {
+     });
+     after_update.forEach(add_render_callback);
+ }
++
+ function destroy_component(component, detaching) {
+     const $$ = component.$$;
+     if ($$.fragment !== null) {
+@@ -1374,6 +1517,7 @@ function destroy_component(component, detaching) {
+         $$.ctx = [];
+     }
+ }
++
+ function make_dirty(component, i) {
+     if (component.$$.dirty[0] === -1) {
+         dirty_components.push(component);
+@@ -1382,6 +1526,7 @@ function make_dirty(component, i) {
+     }
+     component.$$.dirty[(i / 31) | 0] |= (1 << (i % 31));
+ }
++
+ function init(component, options, instance, create_fragment, not_equal, props, dirty = [-1]) {
+     const parent_component = current_component;
+     set_current_component(component);
+@@ -1405,8 +1550,8 @@ function init(component, options, instance, create_fragment, not_equal, props, d
+         dirty
+     };
+     let ready = false;
+-    $$.ctx = instance
+-        ? instance(component, prop_values, (i, ret, ...rest) => {
++    $$.ctx = instance ?
++        instance(component, prop_values, (i, ret, ...rest) => {
+             const value = rest.length ? rest[0] : ret;
+             if ($$.ctx && not_equal($$.ctx[i], $$.ctx[i] = value)) {
+                 if ($$.bound[i])
+@@ -1415,8 +1560,7 @@ function init(component, options, instance, create_fragment, not_equal, props, d
+                     make_dirty(component, i);
+             }
+             return ret;
+-        })
+-        : [];
++        }) : [];
+     $$.update();
+     ready = true;
+     run_all($$.before_update);
+@@ -1428,8 +1572,7 @@ function init(component, options, instance, create_fragment, not_equal, props, d
+             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+             $$.fragment && $$.fragment.l(nodes);
+             nodes.forEach(detach);
+-        }
+-        else {
++        } else {
+             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+             $$.fragment && $$.fragment.c();
+         }
+@@ -1445,7 +1588,9 @@ if (typeof HTMLElement === 'function') {
+     SvelteElement = class extends HTMLElement {
+         constructor() {
+             super();
+-            this.attachShadow({ mode: 'open' });
++            this.attachShadow({
++                mode: 'open'
++            });
+         }
+         connectedCallback() {
+             // @ts-ignore todo: improve typings
+@@ -1496,70 +1641,121 @@ class SvelteComponent {
+ }
+ 
+ function dispatch_dev(type, detail) {
+-    document.dispatchEvent(custom_event(type, Object.assign({ version: '3.22.2' }, detail)));
++    document.dispatchEvent(custom_event(type, Object.assign({
++        version: '3.22.2'
++    }, detail)));
+ }
++
+ function append_dev(target, node) {
+-    dispatch_dev("SvelteDOMInsert", { target, node });
++    dispatch_dev("SvelteDOMInsert", {
++        target,
++        node
++    });
+     append(target, node);
+ }
++
+ function insert_dev(target, node, anchor) {
+-    dispatch_dev("SvelteDOMInsert", { target, node, anchor });
++    dispatch_dev("SvelteDOMInsert", {
++        target,
++        node,
++        anchor
++    });
+     insert(target, node, anchor);
+ }
++
+ function detach_dev(node) {
+-    dispatch_dev("SvelteDOMRemove", { node });
++    dispatch_dev("SvelteDOMRemove", {
++        node
++    });
+     detach(node);
+ }
++
+ function detach_between_dev(before, after) {
+     while (before.nextSibling && before.nextSibling !== after) {
+         detach_dev(before.nextSibling);
+     }
+ }
++
+ function detach_before_dev(after) {
+     while (after.previousSibling) {
+         detach_dev(after.previousSibling);
+     }
+ }
++
+ function detach_after_dev(before) {
+     while (before.nextSibling) {
+         detach_dev(before.nextSibling);
+     }
+ }
++
+ function listen_dev(node, event, handler, options, has_prevent_default, has_stop_propagation) {
+     const modifiers = options === true ? ["capture"] : options ? Array.from(Object.keys(options)) : [];
+     if (has_prevent_default)
+         modifiers.push('preventDefault');
+     if (has_stop_propagation)
+         modifiers.push('stopPropagation');
+-    dispatch_dev("SvelteDOMAddEventListener", { node, event, handler, modifiers });
++    dispatch_dev("SvelteDOMAddEventListener", {
++        node,
++        event,
++        handler,
++        modifiers
++    });
+     const dispose = listen(node, event, handler, options);
+     return () => {
+-        dispatch_dev("SvelteDOMRemoveEventListener", { node, event, handler, modifiers });
++        dispatch_dev("SvelteDOMRemoveEventListener", {
++            node,
++            event,
++            handler,
++            modifiers
++        });
+         dispose();
+     };
+ }
++
+ function attr_dev(node, attribute, value) {
+     attr(node, attribute, value);
+     if (value == null)
+-        dispatch_dev("SvelteDOMRemoveAttribute", { node, attribute });
++        dispatch_dev("SvelteDOMRemoveAttribute", {
++            node,
++            attribute
++        });
+     else
+-        dispatch_dev("SvelteDOMSetAttribute", { node, attribute, value });
++        dispatch_dev("SvelteDOMSetAttribute", {
++            node,
++            attribute,
++            value
++        });
+ }
++
+ function prop_dev(node, property, value) {
+     node[property] = value;
+-    dispatch_dev("SvelteDOMSetProperty", { node, property, value });
++    dispatch_dev("SvelteDOMSetProperty", {
++        node,
++        property,
++        value
++    });
+ }
++
+ function dataset_dev(node, property, value) {
+     node.dataset[property] = value;
+-    dispatch_dev("SvelteDOMSetDataset", { node, property, value });
++    dispatch_dev("SvelteDOMSetDataset", {
++        node,
++        property,
++        value
++    });
+ }
++
+ function set_data_dev(text, data) {
+     data = '' + data;
+     if (text.data === data)
+         return;
+-    dispatch_dev("SvelteDOMSetData", { node: text, data });
++    dispatch_dev("SvelteDOMSetData", {
++        node: text,
++        data
++    });
+     text.data = data;
+ }
++
+ function validate_each_argument(arg) {
+     if (typeof arg !== 'string' && !(arg && typeof arg === 'object' && 'length' in arg)) {
+         let msg = '{#each} only iterates over array-like objects.';
+@@ -1569,6 +1765,7 @@ function validate_each_argument(arg) {
+         throw new Error(msg);
+     }
+ }
++
+ function validate_slots(name, slot, keys) {
+     for (const slot_key of Object.keys(slot)) {
+         if (!~keys.indexOf(slot_key)) {
+@@ -1589,9 +1786,10 @@ class SvelteComponentDev extends SvelteComponent {
+             console.warn(`Component was already destroyed`); // eslint-disable-line no-console
+         };
+     }
+-    $capture_state() { }
+-    $inject_state() { }
++    $capture_state() {}
++    $inject_state() {}
+ }
++
+ function loop_guard(timeout) {
+     const start = Date.now();
+     return () => {
+@@ -1601,4 +1799,152 @@ function loop_guard(timeout) {
+     };
+ }
+ 
+-export { HtmlTag, SvelteComponent, SvelteComponentDev, SvelteElement, action_destroyer, add_attribute, add_classes, add_flush_callback, add_location, add_render_callback, add_resize_listener, add_transform, afterUpdate, append, append_dev, assign, attr, attr_dev, beforeUpdate, bind, binding_callbacks, blank_object, bubble, check_outros, children, claim_component, claim_element, claim_space, claim_text, clear_loops, component_subscribe, compute_rest_props, createEventDispatcher, create_animation, create_bidirectional_transition, create_component, create_in_transition, create_out_transition, create_slot, create_ssr_component, current_component, custom_event, dataset_dev, debug, destroy_block, destroy_component, destroy_each, detach, detach_after_dev, detach_before_dev, detach_between_dev, detach_dev, dirty_components, dispatch_dev, each, element, element_is, empty, escape, escaped, exclude_internal_props, fix_and_destroy_block, fix_and_outro_and_destroy_block, fix_position, flush, getContext, get_binding_group_value, get_current_component, get_slot_changes, get_slot_context, get_spread_object, get_spread_update, get_store_value, globals, group_outros, handle_promise, has_prop, identity, init, insert, insert_dev, intros, invalid_attribute_name_character, is_client, is_crossorigin, is_function, is_promise, listen, listen_dev, loop, loop_guard, missing_component, mount_component, noop, not_equal, now, null_to_empty, object_without_properties, onDestroy, onMount, once, outro_and_destroy_block, prevent_default, prop_dev, query_selector_all, raf, run, run_all, safe_not_equal, schedule_update, select_multiple_value, select_option, select_options, select_value, self, setContext, set_attributes, set_current_component, set_custom_element_data, set_data, set_data_dev, set_input_type, set_input_value, set_now, set_raf, set_store_value, set_style, set_svg_attributes, space, spread, stop_propagation, subscribe, svg_element, text, tick, time_ranges_to_array, to_number, toggle_class, transition_in, transition_out, update_keyed_each, validate_component, validate_each_argument, validate_each_keys, validate_slots, validate_store, xlink_attr };
++export {
++    HtmlTag,
++    SvelteComponent,
++    SvelteComponentDev,
++    SvelteElement,
++    action_destroyer,
++    add_attribute,
++    add_classes,
++    add_flush_callback,
++    add_location,
++    add_render_callback,
++    add_resize_listener,
++    add_transform,
++    afterUpdate,
++    append,
++    append_dev,
++    assign,
++    attr,
++    attr_dev,
++    beforeUpdate,
++    bind,
++    binding_callbacks,
++    blank_object,
++    bubble,
++    check_outros,
++    children,
++    claim_component,
++    claim_element,
++    claim_space,
++    claim_text,
++    clear_loops,
++    component_subscribe,
++    compute_rest_props,
++    createEventDispatcher,
++    create_animation,
++    create_bidirectional_transition,
++    create_component,
++    create_in_transition,
++    create_out_transition,
++    create_slot,
++    create_ssr_component,
++    current_component,
++    custom_event,
++    dataset_dev,
++    debug,
++    destroy_block,
++    destroy_component,
++    destroy_each,
++    detach,
++    detach_after_dev,
++    detach_before_dev,
++    detach_between_dev,
++    detach_dev,
++    dirty_components,
++    dispatch_dev,
++    each,
++    element,
++    element_is,
++    empty,
++    escape,
++    escaped,
++    exclude_internal_props,
++    fix_and_destroy_block,
++    fix_and_outro_and_destroy_block,
++    fix_position,
++    flush,
++    getContext,
++    get_binding_group_value,
++    get_current_component,
++    get_slot_changes,
++    get_slot_context,
++    get_spread_object,
++    get_spread_update,
++    get_store_value,
++    globals,
++    group_outros,
++    handle_promise,
++    has_prop,
++    identity,
++    init,
++    insert,
++    insert_dev,
++    intros,
++    invalid_attribute_name_character,
++    is_client,
++    is_crossorigin,
++    is_function,
++    is_promise,
++    listen,
++    listen_dev,
++    loop,
++    loop_guard,
++    missing_component,
++    mount_component,
++    noop,
++    not_equal,
++    now,
++    null_to_empty,
++    object_without_properties,
++    onDestroy,
++    onMount,
++    once,
++    outro_and_destroy_block,
++    prevent_default,
++    prop_dev,
++    query_selector_all,
++    raf,
++    run,
++    run_all,
++    safe_not_equal,
++    schedule_update,
++    select_multiple_value,
++    select_option,
++    select_options,
++    select_value,
++    self,
++    setContext,
++    set_attributes,
++    set_current_component,
++    set_custom_element_data,
++    set_data,
++    set_data_dev,
++    set_input_type,
++    set_input_value,
++    set_now,
++    set_raf,
++    set_store_value,
++    set_style,
++    set_svg_attributes,
++    space,
++    spread,
++    stop_propagation,
++    subscribe,
++    svg_element,
++    text,
++    tick,
++    time_ranges_to_array,
++    to_number,
++    toggle_class,
++    transition_in,
++    transition_out,
++    update_keyed_each,
++    validate_component,
++    validate_each_argument,
++    validate_each_keys,
++    validate_slots,
++    validate_store,
++    xlink_attr
++};
+\ No newline at end of file
