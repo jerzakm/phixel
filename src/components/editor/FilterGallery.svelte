@@ -4,7 +4,7 @@
   import { filterDictionary } from "../../filterManager.ts";
   import { currentProject } from "../../stores";
   import { uuidv4 } from "../../util.ts";
-  export let filterGalleryDialog;
+  let filterGalleryDialog;
 
   let tempProject = {};
   let list;

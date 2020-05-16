@@ -14,5 +14,5 @@
 </script>
 
 <Topbar />
-<!-- <Toolbar /> -->
+<Toolbar />
 <Editor />

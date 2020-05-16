@@ -12,7 +12,7 @@ export const Bloom: FilterBuilder = {
   name: 'Bloom',
   build,
   defaultOptions: {
-    treshold: 0.5, bloomScale: 1, brightness: 1, blur: 8, quality: 4, pixelSize: 1
+    treshold: 0.5, bloomScale: 1, brightness: 1, blur: 8
   },
   options: [
     {

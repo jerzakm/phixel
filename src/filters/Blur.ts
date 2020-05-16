@@ -7,6 +7,8 @@ const build = (options: any) => {
   return new PIXI.filters.BlurFilter(o.strength, o.quality, o.resolution, o.kernelSize)
 }
 
+// CAUSING ISSUES?
+
 export const Blur: FilterBuilder = {
   filterRef: 'blur',
   name: 'Blur',

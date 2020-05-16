@@ -11,20 +11,18 @@ export const loadProject = (project: Project) => {
 export const createExampleProject = () => {
   const project: Project = {
     id: 'example',
-    name: "Example project",
-    image: 'test_waves.jpg',
+    name: "Example projec5t",
+    image: 'test_ct.jpg',
     filters: [
     ]
   }
 
   for (const f of filterDictionary) {
-    // if (f.filterRef == 'paletteLimiter') {
-    const filter: any = Object.create(f)
-    filter.id = uuidv4()
-    filter.enabled = true
-    filter.options = f.defaultOptions
-    project.filters.push(filter)
-    // }
+    // const filter: any = Object.create(f)
+    // filter.id = uuidv4()
+    // filter.enabled = true
+    // filter.options = f.defaultOptions
+    // project.filters.push(filter)
   }
 
   return project

@@ -49,6 +49,7 @@
   .filter-option-container {
     min-width: 100px;
     min-height: 100px;
+    max-width: 400px;
     background-color: #dddddd;
     position: fixed;
     top: 100px;

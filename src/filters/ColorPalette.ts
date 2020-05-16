@@ -17,7 +17,7 @@ export const ColorPalette: FilterBuilder = {
   build,
   defaultOptions: {
     palette: [
-      '#be4a2f', '#d77643', '#ead4aa', '#e4a672', '#b86f50', '#733e39', '#3e2731', '#a22633', '#e43b44', '#f77622', '#feae34', '#fee761', '#63c74d', '#3e8948', '#265c42', '#193c3e', '#124e89', '#0099db', '#2ce8f5', '#ffffff', '#c0cbdc', '#8b9bb4', '#5a6988', '#3a4466', '#262b44', '#181425', '#ff0044', '#68386c', '#b55088', '#f6757a', '#e8b796', '#c28569'
+      '#be4a2f', '#3e2731', '#a22633', '#e43b44', '#f77622', '#feae34', '#fee761', '#63c74d', '#3e8948', '#0099db', '#5a6988', '#3a4466', '#262b44', '#68386c', '#b55088', '#f6757a'
     ]
   },
   options: [
@@ -50,7 +50,6 @@ const buildFragmentShader = (palette: string[]) => {
   precision mediump float;
   varying vec2 vTextureCoord;
   uniform sampler2D uSampler;
-  uniform vec4 filterArea;
   float hash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
   float compare(vec3 a, vec3 b) {
     a*=a*a;
