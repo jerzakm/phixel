@@ -1,7 +1,9 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
-import { userAuth } from './stores';
+import {
+    userAuth
+} from './stores';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAjCgYB9VdcCacpWLaWTN4UBCXoUgJlHGA",
@@ -15,11 +17,9 @@ const firebaseConfig = {
 };
 
 export class FirebaseHook {
-    firebaseConfig: Object
-    googleProvider: firebase.auth.GoogleAuthProvider
-    auth: firebase.auth.Auth
 
-    constructor(firebaseConfig: Object){
+
+    constructor(firebaseConfig) {
         this.firebaseConfig = firebaseConfig
         firebase.initializeApp(this.firebaseConfig);
         this.auth = firebase.auth()
@@ -28,17 +28,17 @@ export class FirebaseHook {
 
     googleSignIn() {
         this.auth
-        .signInWithPopup(this.googleProvider)
-        .then(function(result: any) {
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            userAuth.set(result);
-        })
-        .catch(function(error:any) {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.error(`${errorCode}: ${errorMessage}`)
-            userAuth.set(undefined);
-        });
+            .signInWithPopup(this.googleProvider)
+            .then(function (result) {
+                // This gives you a Google Access Token. You can use it to access the Google API.
+                userAuth.set(result);
+            })
+            .catch(function (error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.error(`${errorCode}: ${errorMessage}`)
+                userAuth.set(undefined);
+            });
     }
 
     signOut() {

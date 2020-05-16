@@ -1,7 +1,11 @@
-import { writable } from 'svelte/store';
-import { Project } from './project';
+import {
+  writable
+} from 'svelte/store';
+import {
+  Project
+} from './project';
 
-const emptyProject: Project = {
+const emptyProject = {
   id: '',
   name: 'empty',
   filters: []

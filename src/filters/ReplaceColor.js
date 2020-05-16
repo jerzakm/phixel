@@ -1,15 +1,18 @@
-import { ColorReplaceFilter } from 'pixi-filters'
-import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
-import { hexTo0xColor } from '../util'
+import {
+  ColorReplaceFilter
+} from 'pixi-filters'
+import {
+  hexTo0xColor
+} from '../util'
 
-const build = (options: any) => {
+const build = (options) => {
   const o = Object.create(ReplaceColor.defaultOptions)
   Object.assign(o, options)
 
   return new ColorReplaceFilter(hexTo0xColor(o.originalColor[0]), hexTo0xColor(o.newColor[0]), o.epsilon)
 }
 
-export const ReplaceColor: FilterBuilder = {
+export const ReplaceColor = {
   filterRef: 'colorReplace',
   name: 'Replace Color',
   build,
@@ -18,11 +21,10 @@ export const ReplaceColor: FilterBuilder = {
     newColor: [`#FFFFFF`],
     epsilon: 0.4
   },
-  options: [
-    {
+  options: [{
       name: 'Sensitivity',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 0.1,
       max: 2,
       step: 0.01,
@@ -31,7 +33,7 @@ export const ReplaceColor: FilterBuilder = {
     {
       name: 'Original Color',
       desc: '',
-      type: FilterOptionType.COLORPICKER,
+      type: 'colorPicker',
       qty: 1,
       color: [],
       filterProperty: 'originalColor'
@@ -39,7 +41,7 @@ export const ReplaceColor: FilterBuilder = {
     {
       name: 'New Color',
       desc: '',
-      type: FilterOptionType.COLORPICKER,
+      type: 'colorPicker',
       qty: 1,
       color: [],
       filterProperty: 'newColor'

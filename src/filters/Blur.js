@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js'
-import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
 
-const build = (options: any) => {
+const build = (options) => {
   const o = Object.create(Blur.defaultOptions)
   Object.assign(o, options)
   return new PIXI.filters.BlurFilter(o.strength, o.quality, o.resolution, o.kernelSize)
@@ -9,17 +8,20 @@ const build = (options: any) => {
 
 // CAUSING ISSUES?
 
-export const Blur: FilterBuilder = {
+export const Blur = {
   filterRef: 'blur',
   name: 'Blur',
   build,
   defaultOptions: {
-    strength: 8, quality: 4, resolution: 1, kernelSize: 5
+    strength: 8,
+    quality: 4,
+    resolution: 1,
+    kernelSize: 5
   },
   options: [{
     name: 'Strength',
     desc: '',
-    type: FilterOptionType.SLIDER,
+    type: 'slider',
     min: 1,
     max: 64,
     step: 1,
@@ -27,7 +29,7 @@ export const Blur: FilterBuilder = {
   }, {
     name: 'Quality',
     desc: '',
-    type: FilterOptionType.SLIDER,
+    type: 'slider',
     min: 1,
     max: 16,
     step: 1,

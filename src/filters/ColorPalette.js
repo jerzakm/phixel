@@ -1,17 +1,20 @@
-import { Filter } from "pixi.js";
-import { RgbColor } from "./_FilterInterfaces";
-import { defaultVertexShader } from "./_shaderDefaults";
+import {
+  Filter
+} from "pixi.js";
+import {
+  defaultVertexShader
+} from "./_shaderDefaults";
+import {
+  hexToRGBA
+} from "../util";
 
-import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
-import { hexToRGBA } from "../util";
-
-const build = (options: any) => {
+const build = (options) => {
   const o = Object.create(ColorPalette.defaultOptions)
   Object.assign(o, options)
   return new PaletteLimiterBuilder(o.palette)
 }
 
-export const ColorPalette: FilterBuilder = {
+export const ColorPalette = {
   filterRef: 'paletteLimiter',
   name: 'Color Palette',
   build,
@@ -20,25 +23,23 @@ export const ColorPalette: FilterBuilder = {
       '#be4a2f', '#3e2731', '#a22633', '#e43b44', '#f77622', '#feae34', '#fee761', '#63c74d', '#3e8948', '#0099db', '#5a6988', '#3a4466', '#262b44', '#68386c', '#b55088', '#f6757a'
     ]
   },
-  options: [
-    {
-      name: 'Palette',
-      desc: '',
-      type: FilterOptionType.COLORPICKER,
-      qty: 256,
-      color: [],
-      filterProperty: 'palette'
-    },
-  ]
+  options: [{
+    name: 'Palette',
+    desc: '',
+    type: 'colorPicker',
+    qty: 256,
+    color: [],
+    filterProperty: 'palette'
+  }, ]
 }
 
 class PaletteLimiterBuilder extends Filter {
-  constructor(palette: string[]) {
+  constructor(palette) {
     super(defaultVertexShader, buildFragmentShader(palette));
   }
 }
 
-const buildFragmentShader = (palette: string[]) => {
+const buildFragmentShader = (palette) => {
   let parsedPalette = ``
 
   for (const c of palette) {

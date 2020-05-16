@@ -66,7 +66,7 @@
 
   // handleGoogleLogin()
 
-  import { userAuth } from "../stores.ts";
+  import { userAuth } from "../stores.js";
 
   const unsubscribe = userAuth.subscribe(value => {
     user = value;

@@ -1,5 +1,5 @@
 <script>
-  import { filterDictionary } from "../../filterManager.ts";
+  import { filterDictionary } from "../../filterManager.js";
   import Textfield, { Input, Textarea } from "@smui/textfield";
   import ColorPicker from "./ColorPicker.svelte";
 

@@ -1,10 +1,10 @@
 <script>
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
-  import { filterDictionary } from "../../filterManager.ts";
+  import { filterDictionary } from "../../filterManager.js";
   import { currentProject } from "../../stores";
-  import { uuidv4 } from "../../util.ts";
-  let filterGalleryDialog;
+  import { uuidv4 } from "../../util.js";
+  export let filterGalleryDialog;
 
   let tempProject = {};
   let list;

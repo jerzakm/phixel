@@ -1,24 +1,27 @@
-import { AdvancedBloomFilter } from 'pixi-filters'
-import { FilterBuilder, FilterOptionType } from './_FilterInterfaces'
+import {
+  AdvancedBloomFilter
+} from 'pixi-filters'
 
-const build = (options: any) => {
+const build = (options) => {
   const o = Object.create(Bloom.defaultOptions)
   Object.assign(o, options)
   return new AdvancedBloomFilter(o)
 }
 
-export const Bloom: FilterBuilder = {
+export const Bloom = {
   filterRef: 'bloom',
   name: 'Bloom',
   build,
   defaultOptions: {
-    treshold: 0.5, bloomScale: 1, brightness: 1, blur: 8
+    treshold: 0.5,
+    bloomScale: 1,
+    brightness: 1,
+    blur: 8
   },
-  options: [
-    {
+  options: [{
       name: 'Scale',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 0,
       max: 10,
       step: 0.01,
@@ -27,7 +30,7 @@ export const Bloom: FilterBuilder = {
     {
       name: 'Brightness',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 0,
       max: 3,
       step: 0.01,
@@ -36,7 +39,7 @@ export const Bloom: FilterBuilder = {
     {
       name: 'Blur',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 0,
       max: 10,
       step: 0.1,
@@ -45,7 +48,7 @@ export const Bloom: FilterBuilder = {
     {
       name: 'Quality',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 0,
       max: 32,
       step: 1,
@@ -54,7 +57,7 @@ export const Bloom: FilterBuilder = {
     {
       name: 'PixelSize',
       desc: '',
-      type: FilterOptionType.SLIDER,
+      type: 'slider',
       min: 1,
       max: 64,
       step: 1,
@@ -62,12 +65,3 @@ export const Bloom: FilterBuilder = {
     }
   ]
 }
-
-// threshold: number;
-//         bloomScale: number;
-//         brightness: number;
-//         kernels: number[];
-//         blur: number;
-//         quality: number;
-//         pixelSize:number|PIXI.Point|number[];
-//         resolution: number;
