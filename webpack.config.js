@@ -1,4 +1,5 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 const path = require('path');
 
@@ -8,6 +9,9 @@ const prod = mode === 'production';
 module.exports = {
   entry: {
     bundle: ['./src/main.js']
+  },
+  devServer: {
+    port: 3000
   },
   resolve: {
     alias: {
@@ -21,17 +25,29 @@ module.exports = {
     filename: '[name].js',
     chunkFilename: '[name].[id].js'
   },
-  // optimization: {
-  //   splitChunks: {
-  //     cacheGroups: {
-  //       commons: {
-  //         test: /[\\/]node_modules[\\/]/,
-  //         name: 'vendors',
-  //         chunks: 'all',
-  //       },
-  //     },
-  //   },
-  // },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          ecma: undefined,
+          warnings: false,
+          parse: {},
+          compress: {},
+          mangle: true, // Note `mangle.properties` is `false` by default.
+          module: false,
+          output: null,
+          toplevel: false,
+          nameCache: null,
+          ie8: false,
+          keep_classnames: undefined,
+          keep_fnames: false,
+          safari10: false,
+        },
+        extractComments: 'all'
+      }),
+    ],
+  },
   module: {
     rules: [{
         test: /\.scss$/,

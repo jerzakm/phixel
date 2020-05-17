@@ -34,18 +34,22 @@
     "svelte-loader": "2.13.3",
     "svelte-material-ui": "^1.0.0-beta.20",
     "svelte-preprocess": "^3.7.4",
+    "terser-webpack-plugin": "^3.0.1",
     "ts-loader": "^7.0.4",
     "typescript": "^3.9.2",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.30.0",
     "webpack-cli": "^3.3.0",
     "webpack-dev-server": "^3.3.1"
   },
   "dependencies": {
+    "@pixi/unsafe-eval": "^5.2.4",
     "@simonwep/pickr": "^1.6.0",
     "firebase": "^7.14.3",
     "pixi-filters": "^3.1.1",
     "pixi.js": "^5.2.4",
     "svelte-color-picker": "^1.0.7",
-    "svelte-sortablejs": "^0.2.0"
+    "svelte-sortablejs": "^0.2.0",
+    "twgl.js": "^4.15.0"
   }
 }
