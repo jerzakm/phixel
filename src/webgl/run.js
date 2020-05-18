@@ -1,140 +1,11 @@
 import * as twgl from 'twgl.js';
-
-const kernels = {
-  normal: [
-    0, 0, 0,
-    0, 1, 0,
-    0, 0, 0
-  ],
-  gaussianBlur: [
-    0.045, 0.122, 0.045,
-    0.122, 0.332, 0.122,
-    0.045, 0.122, 0.045
-  ],
-  gaussianBlur2: [
-    1, 2, 1,
-    2, 4, 2,
-    1, 2, 1
-  ],
-  gaussianBlur3: [
-    0, 1, 0,
-    1, 1, 1,
-    0, 1, 0
-  ],
-  unsharpen: [
-    -1, -1, -1,
-    -1, 9, -1,
-    -1, -1, -1
-  ],
-  sharpness: [
-    0, -1, 0,
-    -1, 5, -1,
-    0, -1, 0
-  ],
-  sharpen: [
-    -1, -1, -1,
-    -1, 16, -1,
-    -1, -1, -1
-  ],
-  edgeDetect: [
-    -0.125, -0.125, -0.125,
-    -0.125, 1, -0.125,
-    -0.125, -0.125, -0.125
-  ],
-  edgeDetect2: [
-    -1, -1, -1,
-    -1, 8, -1,
-    -1, -1, -1
-  ],
-  edgeDetect3: [
-    -5, 0, 0,
-    0, 0, 0,
-    0, 0, 5
-  ],
-  edgeDetect4: [
-    -1, -1, -1,
-    0, 0, 0,
-    1, 1, 1
-  ]
-};
-
-const vs = `attribute vec2 a_position;
-attribute vec2 a_texCoord;
-
-uniform vec2 u_resolution;
-uniform float u_flipY;
-
-varying vec2 v_texCoord;
-
-void main() {
-   // convert the rectangle from pixels to 0.0 to 1.0
-   vec2 zeroToOne = a_position / u_resolution;
-
-   // convert from 0->1 to 0->2
-   vec2 zeroToTwo = zeroToOne * 2.0;
-
-   // convert from 0->2 to -1->+1 (clipspace)
-   vec2 clipSpace = zeroToTwo - 1.0;
-
-   gl_Position = vec4(clipSpace * vec2(1, u_flipY), 0, 1);
-
-   // pass the texCoord to the fragment shader
-   // The GPU will interpolate this value between points.
-   v_texCoord = a_texCoord;
-}`;
-
-const fs = `
-    precision mediump float;
-
-		// our texture
-		uniform sampler2D u_image;
-		uniform vec2 u_textureSize;
-		uniform float u_kernel[9];
-		uniform float u_kernelWeight;
-
-		// the texCoords passed in from the vertex shader.
-    varying vec2 v_texCoord;
-
-
-		void main() {
-			 vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
-			 vec4 colorSum =
-					 texture2D(u_image, v_texCoord + onePixel * vec2(-1, -1)) * u_kernel[0] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 0, -1)) * u_kernel[1] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 1, -1)) * u_kernel[2] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2(-1,  0)) * u_kernel[3] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 0,  0)) * u_kernel[4] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 1,  0)) * u_kernel[5] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
-					 texture2D(u_image, v_texCoord + onePixel * vec2( 1,  1)) * u_kernel[8] ;
-       gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1);
-
-		}`
-
-const pixelateFrag = `
-    precision mediump float;
-
-		// our texture
-		uniform sampler2D u_image;
-		uniform vec2 u_textureSize;
-		uniform float u_kernel[9];
-		uniform float u_kernelWeight;
-
-		// the texCoords passed in from the vertex shader.
-    varying vec2 v_texCoord;
-
-
-		void main() {
-
-    float pixelWidth = 5.0/u_textureSize.x;
-    float pixelHeight = 5.0/u_textureSize.y;
-
-    float x = floor(v_texCoord.x/pixelWidth)*pixelWidth;
-    float y = floor(v_texCoord.y/pixelHeight)*pixelHeight;
-
-    gl_FragColor = texture2D(u_image, vec2(x, y));
-		}`
+import {
+  defaultVertex
+} from 'pixi.js';
+import {
+  defaultVertexShader,
+  equalizeFrag
+} from './shaders';
 
 export const runWebGLDemo = async () => {
   main();
@@ -162,7 +33,6 @@ function render(image) {
   if (!gl) {
     return;
   }
-
 
 
   // Create a buffer to put three 2d clip space points in
@@ -228,7 +98,7 @@ function render(image) {
   }
 
   // setup GLSL program
-  const program = twgl.createProgram(gl, [vs, fs])
+  const program = twgl.createProgram(gl, [defaultVertexShader, equalizeFrag])
 
   // look up where the vertex data needs to go.
   const positionLocation = gl.getAttribLocation(program, "a_position");
@@ -237,20 +107,23 @@ function render(image) {
   // lookup uniforms
   var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
   var textureSizeLocation = gl.getUniformLocation(program, "u_textureSize");
-  var kernelLocation = gl.getUniformLocation(program, "u_kernel[0]");
-  var kernelWeightLocation = gl.getUniformLocation(program, "u_kernelWeight");
   var flipYLocation = gl.getUniformLocation(program, "u_flipY");
+
+  const shader = {
+    program: program,
+    uniforms: {
+      positionLocation: gl.getAttribLocation(program, "a_position"),
+      texcoordLocation: gl.getAttribLocation(program, "a_texCoord"),
+      resolutionLocation: gl.getUniformLocation(program, "u_resolution"),
+      textureSizeLocation: gl.getUniformLocation(program, "u_textureSize"),
+      flipYLocation: gl.getUniformLocation(program, "u_flipY")
+    }
+  }
+
 
   // Define several convolution kernels
 
   drawEffects();
-
-  function computeKernelWeight(kernel) {
-    var weight = kernel.reduce(function (prev, curr) {
-      return prev + curr;
-    });
-    return weight <= 0 ? 1 : weight;
-  }
 
   function drawEffects(name) {
     twgl.resizeCanvasToDisplaySize(gl.canvas)
@@ -259,8 +132,6 @@ function render(image) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-
-
     // Turn on the position attribute
     gl.enableVertexAttribArray(positionLocation);
 
@@ -268,11 +139,11 @@ function render(image) {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
     // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-    var size = 2; // 2 components per iteration
-    var type = gl.FLOAT; // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0; // start at the beginning of the buffer
+    let size = 2; // 2 components per iteration
+    let type = gl.FLOAT; // the data is 32bit floats
+    let normalize = false; // don't normalize the data
+    let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+    let offset = 0; // start at the beginning of the buffer
     gl.vertexAttribPointer(
       positionLocation, size, type, normalize, stride, offset);
 
@@ -284,11 +155,11 @@ function render(image) {
 
 
     // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
-    var size = 2; // 2 components per iteration
-    var type = gl.FLOAT; // the data is 32bit floats
-    var normalize = false; // don't normalize the data
-    var stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-    var offset = 0; // start at the beginning of the buffer
+    // let size = 2; // 2 components per iteration
+    // let type = gl.FLOAT; // the data is 32bit floats
+    // let normalize = false; // don't normalize the data
+    // let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+    // let offset = 0; // start at the beginning of the buffer
     gl.vertexAttribPointer(
       texcoordLocation, size, type, normalize, stride, offset);
 
@@ -299,17 +170,26 @@ function render(image) {
 
     // start with the original image
     gl.bindTexture(gl.TEXTURE_2D, originalImageTexture);
-
-    // don't y flip images while drawing to the textures
     gl.uniform1f(flipYLocation, 1);
 
+    for (var ii = 0; ii < 1; ++ii) {
+      // Setup to draw into one of the framebuffers.
+      setFramebuffer(framebuffers[ii % 2], image.width, image.height);
 
+      drawWithShader();
+
+      // for the next draw, use the texture we just rendered to.
+      gl.bindTexture(gl.TEXTURE_2D, textures[ii % 2]);
+
+      // increment count so we use the other texture next time.
+    }
 
     // finally draw the result to the canvas.
     gl.uniform1f(flipYLocation, -1); // need to y flip for canvas
-    setFramebuffer(null, gl.canvas.width, gl.canvas.height);
 
-    drawWithKernel("normal");
+
+    setFramebuffer(null, gl.canvas.width, gl.canvas.height);
+    drawWithShader();
   }
 
   function setFramebuffer(fbo, width, height) {
@@ -324,11 +204,9 @@ function render(image) {
   }
 
 
-  function drawWithKernel(name) {
+  function drawWithShader() {
     // set the kernel and it's weight
-    gl.useProgram(program)
-    gl.uniform1fv(kernelLocation, kernels[name]);
-    gl.uniform1f(kernelWeightLocation, computeKernelWeight(kernels[name]));
+
 
     // Draw the rectangle.
     var primitiveType = gl.TRIANGLES;
@@ -354,12 +232,6 @@ function setRectangle(gl, x, y, width, height) {
 
 }
 
-
-// This is needed if the images are not on the same domain
-// NOTE: The server providing the images must give CORS permissions
-// in order to be able to use the image with WebGL. Most sites
-// do NOT give permission.
-// See: https://webglfundamentals.org/webgl/lessons/webgl-cors-permission.html
 function requestCORSIfNotSameOrigin(img, url) {
   if ((new URL(url, window.location.href)).origin !== window.location.origin) {
     img.crossOrigin = "";
