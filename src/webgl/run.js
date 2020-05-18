@@ -4,7 +4,9 @@ import {
 } from 'pixi.js';
 import {
   defaultVertexShader,
-  equalizeFrag
+  equalizeFrag,
+  defaultFragmentShader,
+  pixelateFrag
 } from './shaders';
 
 export const runWebGLDemo = async () => {
@@ -77,7 +79,6 @@ function render(image) {
   var framebuffers = [];
 
 
-
   for (var ii = 0; ii < 2; ++ii) {
     var texture = createAndSetupTexture(gl);
     textures.push(texture);
@@ -98,25 +99,28 @@ function render(image) {
   }
 
   // setup GLSL program
-  const program = twgl.createProgram(gl, [defaultVertexShader, equalizeFrag])
+  const cleanProgram = twgl.createProgram(gl, [defaultVertexShader, pixelateFrag])
+  const darkenProgram = twgl.createProgram(gl, [defaultVertexShader, equalizeFrag])
 
-  // look up where the vertex data needs to go.
-  const positionLocation = gl.getAttribLocation(program, "a_position");
-  const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
-
-  // lookup uniforms
-  var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
-  var textureSizeLocation = gl.getUniformLocation(program, "u_textureSize");
-  var flipYLocation = gl.getUniformLocation(program, "u_flipY");
-
-  const shader = {
-    program: program,
+  const cleanShader = {
+    program: cleanProgram,
     uniforms: {
-      positionLocation: gl.getAttribLocation(program, "a_position"),
-      texcoordLocation: gl.getAttribLocation(program, "a_texCoord"),
-      resolutionLocation: gl.getUniformLocation(program, "u_resolution"),
-      textureSizeLocation: gl.getUniformLocation(program, "u_textureSize"),
-      flipYLocation: gl.getUniformLocation(program, "u_flipY")
+      positionLocation: gl.getAttribLocation(cleanProgram, "a_position"),
+      texcoordLocation: gl.getAttribLocation(cleanProgram, "a_texCoord"),
+      resolutionLocation: gl.getUniformLocation(cleanProgram, "u_resolution"),
+      textureSizeLocation: gl.getUniformLocation(cleanProgram, "u_textureSize"),
+      flipYLocation: gl.getUniformLocation(cleanProgram, "u_flipY")
+    }
+  }
+
+  const darkenShader = {
+    program: darkenProgram,
+    uniforms: {
+      positionLocation: gl.getAttribLocation(darkenProgram, "a_position"),
+      texcoordLocation: gl.getAttribLocation(darkenProgram, "a_texCoord"),
+      resolutionLocation: gl.getUniformLocation(darkenProgram, "u_resolution"),
+      textureSizeLocation: gl.getUniformLocation(darkenProgram, "u_textureSize"),
+      flipYLocation: gl.getUniformLocation(darkenProgram, "u_flipY")
     }
   }
 
@@ -132,9 +136,6 @@ function render(image) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // Turn on the position attribute
-    gl.enableVertexAttribArray(positionLocation);
-
     // Bind the position buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
@@ -144,39 +145,22 @@ function render(image) {
     let normalize = false; // don't normalize the data
     let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
     let offset = 0; // start at the beginning of the buffer
+
     gl.vertexAttribPointer(
-      positionLocation, size, type, normalize, stride, offset);
+      cleanShader.uniforms.positionLocation, size, type, normalize, stride, offset);
+    gl.enableVertexAttribArray(cleanShader.uniforms.texcoordLocation);
 
-    // Turn on the texcoord attribute
-    gl.enableVertexAttribArray(texcoordLocation);
-
-    // bind the texcoord buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-
-
-    // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
-    // let size = 2; // 2 components per iteration
-    // let type = gl.FLOAT; // the data is 32bit floats
-    // let normalize = false; // don't normalize the data
-    // let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-    // let offset = 0; // start at the beginning of the buffer
-    gl.vertexAttribPointer(
-      texcoordLocation, size, type, normalize, stride, offset);
-
-    // Tell it to use our program (pair of shaders)
-    gl.useProgram(program);
-    // set the size of the image
-    gl.uniform2f(textureSizeLocation, image.width, image.height);
-
-    // start with the original image
     gl.bindTexture(gl.TEXTURE_2D, originalImageTexture);
-    gl.uniform1f(flipYLocation, 1);
 
-    for (var ii = 0; ii < 1; ++ii) {
+
+
+    for (var ii = 0; ii < 5; ++ii) {
+      setupShader(darkenShader)
       // Setup to draw into one of the framebuffers.
-      setFramebuffer(framebuffers[ii % 2], image.width, image.height);
+      setFramebuffer(framebuffers[ii % 2], image.width, image.height, darkenShader);
 
-      drawWithShader();
+      draw();
 
       // for the next draw, use the texture we just rendered to.
       gl.bindTexture(gl.TEXTURE_2D, textures[ii % 2]);
@@ -184,35 +168,50 @@ function render(image) {
       // increment count so we use the other texture next time.
     }
 
+
+    setupShader(cleanShader)
     // finally draw the result to the canvas.
-    gl.uniform1f(flipYLocation, -1); // need to y flip for canvas
+    gl.uniform1f(cleanShader.uniforms.flipYLocation, -1); // need to y flip for canvas
 
 
-    setFramebuffer(null, gl.canvas.width, gl.canvas.height);
-    drawWithShader();
+    setFramebuffer(null, gl.canvas.width, gl.canvas.height, cleanShader);
+    draw();
   }
 
-  function setFramebuffer(fbo, width, height) {
+  function setupShader(shader) {
+    const size = 2; // 2 components per iteration
+    const type = gl.FLOAT; // the data is 32bit floats
+    const normalize = false; // don't normalize the data
+    const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+    const offset = 0; // start at the beginning of the buffer
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(shader.program);
+    // set the size of the image
+    gl.uniform2f(shader.uniforms.textureSizeLocation, image.width, image.height);
+    gl.vertexAttribPointer(
+      shader.uniforms.texcoordLocation, size, type, normalize, stride, offset);
+    gl.uniform1f(shader.uniforms.flipYLocation, 1);
+    // Turn on the position attribute
+    gl.enableVertexAttribArray(shader.uniforms.positionLocation);
+  }
+
+  function draw() {
+    // Draw the rectangle.
+    const primitiveType = gl.TRIANGLES;
+    const offset = 0;
+    const count = 6;
+    gl.drawArrays(primitiveType, offset, count);
+  }
+
+  function setFramebuffer(fbo, width, height, shader) {
     // make this the framebuffer we are rendering to.
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
     // Tell the shader the resolution of the framebuffer.
-    gl.uniform2f(resolutionLocation, width, height);
+    gl.uniform2f(shader.uniforms.resolutionLocation, width, height);
 
     // Tell webgl the viewport setting needed for framebuffer.
     gl.viewport(0, 0, width, height);
-  }
-
-
-  function drawWithShader() {
-    // set the kernel and it's weight
-
-
-    // Draw the rectangle.
-    var primitiveType = gl.TRIANGLES;
-    var offset = 0;
-    var count = 6;
-    gl.drawArrays(primitiveType, offset, count);
   }
 }
 
