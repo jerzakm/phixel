@@ -206,12 +206,7 @@ function render(image) {
   var textures = [];
   var framebuffers = [];
 
-  // setup GLSL program
-  const program = twgl.createProgram(gl, [vs, fs])
 
-  // look up where the vertex data needs to go.
-  const positionLocation = gl.getAttribLocation(program, "a_position");
-  const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
 
   for (var ii = 0; ii < 2; ++ii) {
     var texture = createAndSetupTexture(gl);
@@ -231,6 +226,13 @@ function render(image) {
     gl.framebufferTexture2D(
       gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
   }
+
+  // setup GLSL program
+  const program = twgl.createProgram(gl, [vs, fs])
+
+  // look up where the vertex data needs to go.
+  const positionLocation = gl.getAttribLocation(program, "a_position");
+  const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
 
   // lookup uniforms
   var resolutionLocation = gl.getUniformLocation(program, "u_resolution");
@@ -349,6 +351,7 @@ function setRectangle(gl, x, y, width, height) {
     x2, y1,
     x2, y2,
   ]), gl.STATIC_DRAW);
+
 }
 
 
