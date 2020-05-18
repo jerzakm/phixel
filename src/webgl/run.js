@@ -1,5 +1,4 @@
 import * as twgl from 'twgl.js';
-import * as webglUtils from './utils'
 
 const kernels = {
   normal: [
@@ -56,60 +55,8 @@ const kernels = {
     -1, -1, -1,
     0, 0, 0,
     1, 1, 1
-  ],
-  edgeDetect5: [
-    -1, -1, -1,
-    2, 2, 2,
-    -1, -1, -1
-  ],
-  edgeDetect6: [
-    -5, -5, -5,
-    -5, 39, -5,
-    -5, -5, -5
-  ],
-  sobelHorizontal: [
-    1, 2, 1,
-    0, 0, 0,
-    -1, -2, -1
-  ],
-  sobelVertical: [
-    1, 0, -1,
-    2, 0, -2,
-    1, 0, -1
-  ],
-  previtHorizontal: [
-    1, 1, 1,
-    0, 0, 0,
-    -1, -1, -1
-  ],
-  previtVertical: [
-    1, 0, -1,
-    1, 0, -1,
-    1, 0, -1
-  ],
-  boxBlur: [
-    0.111, 0.111, 0.111,
-    0.111, 0.111, 0.111,
-    0.111, 0.111, 0.111
-  ],
-  triangleBlur: [
-    0.0625, 0.125, 0.0625,
-    0.125, 0.25, 0.125,
-    0.0625, 0.125, 0.0625
-  ],
-  emboss: [
-    -2, -1, 0,
-    -1, 1, 1,
-    0, 1, 2
   ]
 };
-
-const effectsToApply = [
-  "gaussianBlur",
-  "emboss",
-  "gaussianBlur",
-  "unsharpen"
-];
 
 const vs = `attribute vec2 a_position;
 attribute vec2 a_texCoord;
@@ -216,12 +163,7 @@ function render(image) {
     return;
   }
 
-  // setup GLSL program
-  const program = twgl.createProgram(gl, [vs, fs])
 
-  // look up where the vertex data needs to go.
-  const positionLocation = gl.getAttribLocation(program, "a_position");
-  const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
 
   // Create a buffer to put three 2d clip space points in
   var positionBuffer = gl.createBuffer();
@@ -255,6 +197,7 @@ function render(image) {
     return texture;
   }
 
+
   // Create a texture and put the image in it.
   var originalImageTexture = createAndSetupTexture(gl);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -262,6 +205,14 @@ function render(image) {
   // create 2 textures and attach them to framebuffers.
   var textures = [];
   var framebuffers = [];
+
+  // setup GLSL program
+  const program = twgl.createProgram(gl, [vs, fs])
+
+  // look up where the vertex data needs to go.
+  const positionLocation = gl.getAttribLocation(program, "a_position");
+  const texcoordLocation = gl.getAttribLocation(program, "a_texCoord");
+
   for (var ii = 0; ii < 2; ++ii) {
     var texture = createAndSetupTexture(gl);
     textures.push(texture);
@@ -300,7 +251,7 @@ function render(image) {
   }
 
   function drawEffects(name) {
-    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+    twgl.resizeCanvasToDisplaySize(gl.canvas)
 
     // Clear the canvas
     gl.clearColor(0, 0, 0, 0);

@@ -4,6 +4,9 @@ import "@simonwep/pickr/dist/themes/nano.min.css";
 import {
 	runWebGLDemo
 } from './webgl/run';
+import {
+	WebGLTest
+} from './webgl/cleanerRun';
 
 // const app = new App({
 // 	target: document.body,
@@ -16,4 +19,6 @@ import {
 
 // export default app;
 
-runWebGLDemo();
+// runWebGLDemo();
+
+const test = new WebGLTest()
