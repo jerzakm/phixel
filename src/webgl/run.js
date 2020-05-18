@@ -146,7 +146,8 @@ const fs = `
 		uniform float u_kernelWeight;
 
 		// the texCoords passed in from the vertex shader.
-		varying vec2 v_texCoord;
+    varying vec2 v_texCoord;
+
 
 		void main() {
 			 vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
@@ -160,25 +161,33 @@ const fs = `
 					 texture2D(u_image, v_texCoord + onePixel * vec2(-1,  1)) * u_kernel[6] +
 					 texture2D(u_image, v_texCoord + onePixel * vec2( 0,  1)) * u_kernel[7] +
 					 texture2D(u_image, v_texCoord + onePixel * vec2( 1,  1)) * u_kernel[8] ;
-			 gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1);
+       gl_FragColor = vec4((colorSum / u_kernelWeight).rgb, 1);
+
 		}`
 
-const fp = `
+const pixelateFrag = `
     precision mediump float;
 
-    uniform sampler2D u_image;
-    uniform vec2 u_textureSize;
+		// our texture
+		uniform sampler2D u_image;
+		uniform vec2 u_textureSize;
+		uniform float u_kernel[9];
+		uniform float u_kernelWeight;
+
+		// the texCoords passed in from the vertex shader.
     varying vec2 v_texCoord;
 
-    void main()
-    {
-        float x= u_textureSize.x/10.0;
-        vec2 modul = mod(v_texCoord,5.0);
-        vec2 normalizedCord= vec2(v_texCoord-modul)/u_textureSize.xy;
-        gl_FragColor = texture2D(u_image, normalizedCord);
-    }
-`
 
+		void main() {
+
+    float pixelWidth = 5.0/u_textureSize.x;
+    float pixelHeight = 5.0/u_textureSize.y;
+
+    float x = floor(v_texCoord.x/pixelWidth)*pixelWidth;
+    float y = floor(v_texCoord.y/pixelHeight)*pixelHeight;
+
+    gl_FragColor = texture2D(u_image, vec2(x, y));
+		}`
 
 export const runWebGLDemo = async () => {
   main();
@@ -186,8 +195,9 @@ export const runWebGLDemo = async () => {
 
 function main() {
   var image = new Image();
-  requestCORSIfNotSameOrigin(image, "test_ct.jpg")
-  image.src = "test_ct.jpg";
+  const imgPath = 'test_ct.jpg'
+  requestCORSIfNotSameOrigin(image, imgPath)
+  image.src = imgPath;
   image.onload = function () {
     render(image);
   };
@@ -296,8 +306,7 @@ function render(image) {
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    // Tell it to use our program (pair of shaders)
-    gl.useProgram(program);
+
 
     // Turn on the position attribute
     gl.enableVertexAttribArray(positionLocation);
@@ -320,6 +329,7 @@ function render(image) {
     // bind the texcoord buffer.
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
 
+
     // Tell the texcoord attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
     var size = 2; // 2 components per iteration
     var type = gl.FLOAT; // the data is 32bit floats
@@ -329,6 +339,8 @@ function render(image) {
     gl.vertexAttribPointer(
       texcoordLocation, size, type, normalize, stride, offset);
 
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
     // set the size of the image
     gl.uniform2f(textureSizeLocation, image.width, image.height);
 
@@ -338,29 +350,13 @@ function render(image) {
     // don't y flip images while drawing to the textures
     gl.uniform1f(flipYLocation, 1);
 
-    // loop through each effect we want to apply.
-    var count = 0;
-    for (var ii = 0; ii < 5; ++ii) {
-      var checkbox = true
-      if (checkbox) {
-        gl.useProgram(program);
-        // Setup to draw into one of the framebuffers.
-        setFramebuffer(framebuffers[count % 2], image.width, image.height);
 
-        drawWithKernel(Object.keys(kernels)[ii]);
-
-        // for the next draw, use the texture we just rendered to.
-        gl.bindTexture(gl.TEXTURE_2D, textures[count % 2]);
-
-        // increment count so we use the other texture next time.
-        ++count;
-      }
-    }
 
     // finally draw the result to the canvas.
     gl.uniform1f(flipYLocation, -1); // need to y flip for canvas
     setFramebuffer(null, gl.canvas.width, gl.canvas.height);
-    // drawWithKernel("normal");
+
+    drawWithKernel("normal");
   }
 
   function setFramebuffer(fbo, width, height) {
