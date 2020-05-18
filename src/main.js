@@ -4,9 +4,6 @@ import "@simonwep/pickr/dist/themes/nano.min.css";
 import {
 	runWebGLDemo
 } from './webgl/run';
-import {
-	twglTest
-} from './webgl/twglrun';
 
 // const app = new App({
 // 	target: document.body,
@@ -20,5 +17,3 @@ import {
 // export default app;
 
 runWebGLDemo();
-
-// twglTest()

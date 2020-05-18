@@ -1,11 +1,7 @@
 import * as twgl from 'twgl.js';
 import {
-  defaultVertex
-} from 'pixi.js';
-import {
   defaultVertexShader,
-  equalizeFrag,
-  defaultFragmentShader,
+  greyscale,
   pixelateFrag
 } from './shaders';
 
@@ -100,7 +96,7 @@ function render(image) {
 
   // setup GLSL program
   const cleanProgram = twgl.createProgram(gl, [defaultVertexShader, pixelateFrag])
-  const darkenProgram = twgl.createProgram(gl, [defaultVertexShader, equalizeFrag])
+  const greyscaleProgram = twgl.createProgram(gl, [defaultVertexShader, greyscale])
 
   const cleanShader = {
     program: cleanProgram,
@@ -114,13 +110,13 @@ function render(image) {
   }
 
   const darkenShader = {
-    program: darkenProgram,
+    program: greyscaleProgram,
     uniforms: {
-      positionLocation: gl.getAttribLocation(darkenProgram, "a_position"),
-      texcoordLocation: gl.getAttribLocation(darkenProgram, "a_texCoord"),
-      resolutionLocation: gl.getUniformLocation(darkenProgram, "u_resolution"),
-      textureSizeLocation: gl.getUniformLocation(darkenProgram, "u_textureSize"),
-      flipYLocation: gl.getUniformLocation(darkenProgram, "u_flipY")
+      positionLocation: gl.getAttribLocation(greyscaleProgram, "a_position"),
+      texcoordLocation: gl.getAttribLocation(greyscaleProgram, "a_texCoord"),
+      resolutionLocation: gl.getUniformLocation(greyscaleProgram, "u_resolution"),
+      textureSizeLocation: gl.getUniformLocation(greyscaleProgram, "u_textureSize"),
+      flipYLocation: gl.getUniformLocation(greyscaleProgram, "u_flipY")
     }
   }
 
