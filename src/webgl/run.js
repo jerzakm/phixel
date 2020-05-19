@@ -1,8 +1,8 @@
-import * as twgl from 'twgl.js';
 import {
   defaultVertexShader,
   greyscale,
-  pixelateFrag
+  pixelateFrag,
+  defaultFragmentShader
 } from './shaders';
 
 export const runWebGLDemo = async () => {
@@ -21,7 +21,6 @@ function main() {
 
 function render(image) {
   const canvas = document.createElement("canvas");
-  canvas.id = "twgl-canvas";
   canvas.style.width = window.innerWidth;
   canvas.style.height = window.innerHeight;
   canvas.width = window.innerWidth;
@@ -34,14 +33,14 @@ function render(image) {
 
 
   // Create a buffer to put three 2d clip space points in
-  var positionBuffer = gl.createBuffer();
+  const positionBuffer = gl.createBuffer();
   // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   // Set a rectangle the same size as the image.
   setRectangle(gl, 0, 0, image.width, image.height);
 
   // provide texture coordinates for the rectangle.
-  var texcoordBuffer = gl.createBuffer();
+  const texcoordBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
     0.0, 0.0,
@@ -53,11 +52,9 @@ function render(image) {
   ]), gl.STATIC_DRAW);
 
   function createAndSetupTexture(gl) {
-    var texture = gl.createTexture();
+    const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
-    // Set up texture so we can render any size image and so we are
-    // working with pixels.
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
@@ -67,16 +64,16 @@ function render(image) {
 
 
   // Create a texture and put the image in it.
-  var originalImageTexture = createAndSetupTexture(gl);
+  const originalImageTexture = createAndSetupTexture(gl);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 
   // create 2 textures and attach them to framebuffers.
-  var textures = [];
-  var framebuffers = [];
+  const textures = [];
+  const framebuffers = [];
 
 
-  for (var ii = 0; ii < 2; ++ii) {
-    var texture = createAndSetupTexture(gl);
+  for (let i = 0; i < 2; i++) {
+    const texture = createAndSetupTexture(gl);
     textures.push(texture);
 
     // make the texture the same size as the image
@@ -85,7 +82,7 @@ function render(image) {
       gl.RGBA, gl.UNSIGNED_BYTE, null);
 
     // Create a framebuffer
-    var fbo = gl.createFramebuffer();
+    const fbo = gl.createFramebuffer();
     framebuffers.push(fbo);
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
@@ -95,8 +92,12 @@ function render(image) {
   }
 
   // setup GLSL program
-  const cleanProgram = twgl.createProgram(gl, [defaultVertexShader, pixelateFrag])
-  const greyscaleProgram = twgl.createProgram(gl, [defaultVertexShader, greyscale])
+
+
+
+  const cleanProgram = createProgramFromString(gl, defaultVertexShader, defaultFragmentShader)
+  const pixelateProgram = createProgramFromString(gl, defaultVertexShader, pixelateFrag)
+  const greyscaleProgram = createProgramFromString(gl, defaultVertexShader, greyscale)
 
   const cleanShader = {
     program: cleanProgram,
@@ -120,13 +121,10 @@ function render(image) {
     }
   }
 
-
-  // Define several convolution kernels
-
   drawEffects();
 
   function drawEffects(name) {
-    twgl.resizeCanvasToDisplaySize(gl.canvas)
+    resizeCanvasToDisplaySize(gl.canvas)
 
     // Clear the canvas
     gl.clearColor(0, 0, 0, 0);
@@ -151,27 +149,24 @@ function render(image) {
 
 
 
-    for (var ii = 0; ii < 5; ++ii) {
+    for (var i = 0; i < 5; i++) {
       setupShader(darkenShader)
       // Setup to draw into one of the framebuffers.
-      setFramebuffer(framebuffers[ii % 2], image.width, image.height, darkenShader);
+      setFramebuffer(gl, darkenShader, framebuffers[i % 2], image.width, image.height);
 
-      draw();
+      draw(gl);
 
       // for the next draw, use the texture we just rendered to.
-      gl.bindTexture(gl.TEXTURE_2D, textures[ii % 2]);
-
+      gl.bindTexture(gl.TEXTURE_2D, textures[i % 2]);
       // increment count so we use the other texture next time.
     }
-
 
     setupShader(cleanShader)
     // finally draw the result to the canvas.
     gl.uniform1f(cleanShader.uniforms.flipYLocation, -1); // need to y flip for canvas
 
-
-    setFramebuffer(null, gl.canvas.width, gl.canvas.height, cleanShader);
-    draw();
+    setFramebuffer(gl, cleanShader, null, gl.canvas.width, gl.canvas.height);
+    draw(gl);
   }
 
   function setupShader(shader) {
@@ -190,32 +185,32 @@ function render(image) {
     // Turn on the position attribute
     gl.enableVertexAttribArray(shader.uniforms.positionLocation);
   }
+}
 
-  function draw() {
-    // Draw the rectangle.
-    const primitiveType = gl.TRIANGLES;
-    const offset = 0;
-    const count = 6;
-    gl.drawArrays(primitiveType, offset, count);
-  }
+function draw(gl) {
+  // Draw the rectangle.
+  const primitiveType = gl.TRIANGLES;
+  const offset = 0;
+  const count = 6;
+  gl.drawArrays(primitiveType, offset, count);
+}
 
-  function setFramebuffer(fbo, width, height, shader) {
-    // make this the framebuffer we are rendering to.
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+function setFramebuffer(gl, shader, fbo, width, height) {
+  // make this the framebuffer we are rendering to.
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
-    // Tell the shader the resolution of the framebuffer.
-    gl.uniform2f(shader.uniforms.resolutionLocation, width, height);
+  // Tell the shader the resolution of the framebuffer.
+  gl.uniform2f(shader.uniforms.resolutionLocation, width, height);
 
-    // Tell webgl the viewport setting needed for framebuffer.
-    gl.viewport(0, 0, width, height);
-  }
+  // Tell webgl the viewport setting needed for framebuffer.
+  gl.viewport(0, 0, width, height);
 }
 
 function setRectangle(gl, x, y, width, height) {
-  var x1 = x;
-  var x2 = x + width;
-  var y1 = y;
-  var y2 = y + height;
+  const x1 = x;
+  const x2 = x + width;
+  const y1 = y;
+  const y2 = y + height;
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
     x1, y1,
     x2, y1,
@@ -231,4 +226,38 @@ function requestCORSIfNotSameOrigin(img, url) {
   if ((new URL(url, window.location.href)).origin !== window.location.origin) {
     img.crossOrigin = "";
   }
+}
+
+function createProgramFromString(gl, vs, fs) {
+  const program = gl.createProgram()
+
+  const v = gl.createShader(gl.VERTEX_SHADER);
+  gl.shaderSource(v, vs);
+  gl.compileShader(v);
+
+  const f = gl.createShader(gl.FRAGMENT_SHADER);
+  gl.shaderSource(f, fs);
+  gl.compileShader(f);
+
+  gl.attachShader(program, v)
+  gl.attachShader(program, f)
+
+  gl.linkProgram(program)
+
+  return program
+}
+
+function resizeCanvasToDisplaySize(canvas, multiplier) {
+  multiplier = multiplier || 1;
+  multiplier = Math.max(0, multiplier);
+  var width = canvas.clientWidth * multiplier | 0;
+  var height = canvas.clientHeight * multiplier | 0;
+
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    return true;
+  }
+
+  return false;
 }
