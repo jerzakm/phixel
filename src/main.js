@@ -12,8 +12,6 @@ import {
 // 	}
 // });
 
-// console.log('ok')
-
 // export default app;
 
 runWebGLDemo();

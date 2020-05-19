@@ -3,7 +3,20 @@ import {
   greyscale,
   pixelateFrag,
   defaultFragmentShader
-} from './shaders';
+} from './shaders/_defaultShaders';
+
+import {
+  draw,
+  setFramebuffer,
+  setRectangle,
+  createProgramFromString,
+  resizeCanvasToDisplaySize,
+  createAndSetupTexture,
+  setupShader
+} from './renderUtils'
+import {
+  BasicShader
+} from './shaders/BasicShader';
 
 export const runWebGLDemo = async () => {
   main();
@@ -12,7 +25,7 @@ export const runWebGLDemo = async () => {
 function main() {
   var image = new Image();
   const imgPath = 'test_ct.jpg'
-  requestCORSIfNotSameOrigin(image, imgPath)
+  image.crossOrigin = "";
   image.src = imgPath;
   image.onload = function () {
     render(image);
@@ -27,10 +40,6 @@ function render(image) {
   canvas.height = window.innerHeight;
   document.body.appendChild(canvas);
   const gl = canvas.getContext("webgl");
-  if (!gl) {
-    return;
-  }
-
 
   // Create a buffer to put three 2d clip space points in
   const positionBuffer = gl.createBuffer();
@@ -50,17 +59,6 @@ function render(image) {
     1.0, 0.0,
     1.0, 1.0,
   ]), gl.STATIC_DRAW);
-
-  function createAndSetupTexture(gl) {
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    return texture;
-  }
 
 
   // Create a texture and put the image in it.
@@ -93,22 +91,22 @@ function render(image) {
 
   // setup GLSL program
 
-
-
   const cleanProgram = createProgramFromString(gl, defaultVertexShader, defaultFragmentShader)
   const pixelateProgram = createProgramFromString(gl, defaultVertexShader, pixelateFrag)
   const greyscaleProgram = createProgramFromString(gl, defaultVertexShader, greyscale)
 
-  const cleanShader = {
-    program: cleanProgram,
-    uniforms: {
-      positionLocation: gl.getAttribLocation(cleanProgram, "a_position"),
-      texcoordLocation: gl.getAttribLocation(cleanProgram, "a_texCoord"),
-      resolutionLocation: gl.getUniformLocation(cleanProgram, "u_resolution"),
-      textureSizeLocation: gl.getUniformLocation(cleanProgram, "u_textureSize"),
-      flipYLocation: gl.getUniformLocation(cleanProgram, "u_flipY")
-    }
-  }
+  // const cleanShader = {
+  //   program: cleanProgram,
+  //   uniforms: {
+  //     positionLocation: gl.getAttribLocation(cleanProgram, "a_position"),
+  //     texcoordLocation: gl.getAttribLocation(cleanProgram, "a_texCoord"),
+  //     resolutionLocation: gl.getUniformLocation(cleanProgram, "u_resolution"),
+  //     textureSizeLocation: gl.getUniformLocation(cleanProgram, "u_textureSize"),
+  //     flipYLocation: gl.getUniformLocation(cleanProgram, "u_flipY")
+  //   }
+  // }
+
+  const cleanShader = BasicShader.build(gl)
 
   const darkenShader = {
     program: greyscaleProgram,
@@ -150,7 +148,7 @@ function render(image) {
 
 
     for (var i = 0; i < 5; i++) {
-      setupShader(darkenShader)
+      setupShader(gl, image, darkenShader)
       // Setup to draw into one of the framebuffers.
       setFramebuffer(gl, darkenShader, framebuffers[i % 2], image.width, image.height);
 
@@ -161,7 +159,7 @@ function render(image) {
       // increment count so we use the other texture next time.
     }
 
-    setupShader(cleanShader)
+    setupShader(gl, image, cleanShader)
     // finally draw the result to the canvas.
     gl.uniform1f(cleanShader.uniforms.flipYLocation, -1); // need to y flip for canvas
 
@@ -169,95 +167,4 @@ function render(image) {
     draw(gl);
   }
 
-  function setupShader(shader) {
-    const size = 2; // 2 components per iteration
-    const type = gl.FLOAT; // the data is 32bit floats
-    const normalize = false; // don't normalize the data
-    const stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-    const offset = 0; // start at the beginning of the buffer
-    // Tell it to use our program (pair of shaders)
-    gl.useProgram(shader.program);
-    // set the size of the image
-    gl.uniform2f(shader.uniforms.textureSizeLocation, image.width, image.height);
-    gl.vertexAttribPointer(
-      shader.uniforms.texcoordLocation, size, type, normalize, stride, offset);
-    gl.uniform1f(shader.uniforms.flipYLocation, 1);
-    // Turn on the position attribute
-    gl.enableVertexAttribArray(shader.uniforms.positionLocation);
-  }
-}
-
-function draw(gl) {
-  // Draw the rectangle.
-  const primitiveType = gl.TRIANGLES;
-  const offset = 0;
-  const count = 6;
-  gl.drawArrays(primitiveType, offset, count);
-}
-
-function setFramebuffer(gl, shader, fbo, width, height) {
-  // make this the framebuffer we are rendering to.
-  gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-  // Tell the shader the resolution of the framebuffer.
-  gl.uniform2f(shader.uniforms.resolutionLocation, width, height);
-
-  // Tell webgl the viewport setting needed for framebuffer.
-  gl.viewport(0, 0, width, height);
-}
-
-function setRectangle(gl, x, y, width, height) {
-  const x1 = x;
-  const x2 = x + width;
-  const y1 = y;
-  const y2 = y + height;
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-    x1, y1,
-    x2, y1,
-    x1, y2,
-    x1, y2,
-    x2, y1,
-    x2, y2,
-  ]), gl.STATIC_DRAW);
-
-}
-
-function requestCORSIfNotSameOrigin(img, url) {
-  if ((new URL(url, window.location.href)).origin !== window.location.origin) {
-    img.crossOrigin = "";
-  }
-}
-
-function createProgramFromString(gl, vs, fs) {
-  const program = gl.createProgram()
-
-  const v = gl.createShader(gl.VERTEX_SHADER);
-  gl.shaderSource(v, vs);
-  gl.compileShader(v);
-
-  const f = gl.createShader(gl.FRAGMENT_SHADER);
-  gl.shaderSource(f, fs);
-  gl.compileShader(f);
-
-  gl.attachShader(program, v)
-  gl.attachShader(program, f)
-
-  gl.linkProgram(program)
-
-  return program
-}
-
-function resizeCanvasToDisplaySize(canvas, multiplier) {
-  multiplier = multiplier || 1;
-  multiplier = Math.max(0, multiplier);
-  var width = canvas.clientWidth * multiplier | 0;
-  var height = canvas.clientHeight * multiplier | 0;
-
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
-    return true;
-  }
-
-  return false;
 }
