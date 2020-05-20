@@ -51,19 +51,13 @@ export function createProgramFromString(gl, vs, fs) {
   return program
 }
 
-export function resizeCanvasToDisplaySize(canvas, multiplier) {
-  multiplier = multiplier || 1;
+export function resizeCanvasToDisplaySize(canvas, multiplier = 1) {
   multiplier = Math.max(0, multiplier);
-  var width = canvas.clientWidth * multiplier | 0;
-  var height = canvas.clientHeight * multiplier | 0;
+  let width = window.innerWidth * multiplier | 0;
+  let height = window.innerHeight * multiplier | 0;
 
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
-    return true;
-  }
-
-  return false;
+  canvas.width = width;
+  canvas.height = height;
 }
 
 export function createAndSetupTexture(gl) {
