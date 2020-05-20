@@ -19,6 +19,9 @@ import {
 import {
   PaletteShader
 } from './shaders/PaletteShader';
+import {
+  BloomShader
+} from './shaders/BloomShader';
 
 export const runWebGLDemo = async () => {
   main();
@@ -93,10 +96,13 @@ function render(image) {
 
   const cleanShader = DefaultShader.build(gl)
   const pixelateShader = PixelateShader.build(gl, {
-    size: 10
+    size: 4
   })
+  const bloomShader = BloomShader.build(gl)
   const greyscaleShader = GreyscaleShader.build(gl)
   const paletteLimiter = PaletteShader.build(gl)
+
+  const shaders = [paletteLimiter, pixelateShader, bloomShader]
 
   drawEffects();
 
@@ -124,12 +130,10 @@ function render(image) {
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
     gl.bindTexture(gl.TEXTURE_2D, originalImageTexture);
 
-
-
-    for (var i = 0; i < 1; i++) {
-      setupShader(gl, image, pixelateShader)
+    for (let i = 0; i < shaders.length; i++) {
+      setupShader(gl, image, shaders[i])
       // Setup to draw into one of the framebuffers.
-      setFramebuffer(gl, pixelateShader, framebuffers[i % 2], image.width, image.height);
+      setFramebuffer(gl, shaders[i], framebuffers[i % 2], image.width, image.height);
 
       draw(gl);
 
