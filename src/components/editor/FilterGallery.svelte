@@ -1,7 +1,7 @@
 <script>
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
-  import { filterDictionary } from "../../filterManager.js";
+  import { shaderDictionary } from "../../webgl/shaderManager.js";
   import { currentProject } from "../../stores";
   import { uuidv4 } from "../../util.js";
   export let filterGalleryDialog;
@@ -38,7 +38,7 @@
   aria-describedby="simple-content">
   <Title id="simple-title">Add a new filter</Title>
   <Content id="simple-content">
-    {#each filterDictionary as filter}
+    {#each shaderDictionary as filter}
       <Button
         on:click={() => addFilter(filter)}
         variant="raised"

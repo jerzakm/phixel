@@ -1,6 +1,6 @@
 <script>
   // import Canvas from "./Canvas.svelte";
-  // import FilterList from "./FilterList.svelte";
+  import FilterList from "./FilterList.svelte";
   // import FilterOptionWindow from "./FilterOptionWindow.svelte";
   import CanvasWEBGL from "./CanvasWEBGL.svelte";
   import { currentProject } from "../../stores";
@@ -36,7 +36,7 @@
 <!-- <Canvas /> -->
 <div class="card">
   <div class="filters">
-    <!-- <FilterList /> -->
+    <FilterList />
   </div>
 </div>
 
