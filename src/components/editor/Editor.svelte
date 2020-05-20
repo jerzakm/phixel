@@ -3,6 +3,12 @@
   // import FilterList from "./FilterList.svelte";
   // import FilterOptionWindow from "./FilterOptionWindow.svelte";
   import CanvasWEBGL from "./CanvasWEBGL.svelte";
+  import { currentProject } from "../../stores";
+
+  let imgPath;
+  currentProject.subscribe(project => {
+    imgPath = project.image;
+  });
 </script>
 
 <style>
@@ -35,4 +41,4 @@
 </div>
 
 <!-- <FilterOptionWindow /> -->
-<CanvasWEBGL />
+<CanvasWEBGL {imgPath} />

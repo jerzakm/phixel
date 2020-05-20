@@ -17,10 +17,10 @@
   import { currentProject } from "../../stores";
 
   let canvas;
+  export let imgPath;
 
   onMount(() => {
-    var image = new Image();
-    const imgPath = "test_ct.jpg";
+    const image = new Image();
     image.crossOrigin = "";
     image.src = imgPath;
     image.onload = function() {
@@ -107,14 +107,12 @@
       }
 
       const cleanShader = DefaultShader.build(gl);
-      const pixelateShader = PixelateShader.build(gl, {
-        size: 4
-      });
-      const bloomShader = BloomShader.build(gl);
-      const greyscaleShader = GreyscaleShader.build(gl);
-      const paletteLimiter = PaletteShader.build(gl);
 
-      const shaders = [paletteLimiter, pixelateShader, bloomShader];
+      const shaders = [];
+
+      currentProject.subscribe(project => {
+        // console.log(project);
+      });
 
       resizeCanvasToDisplaySize(gl.canvas, 1.5);
 
