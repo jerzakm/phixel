@@ -15,6 +15,7 @@
   import { PaletteShader } from "../../webgl/shaders/PaletteShader";
   import { BloomShader } from "../../webgl/shaders/BloomShader";
   import { currentProject } from "../../stores";
+  import { shaderDictionary } from "../../webgl/shaderManager.js";
 
   let canvas;
   export let imgPath;
@@ -110,20 +111,45 @@
 
       const shaders = [];
 
+      // SHADER UPDATER
       currentProject.subscribe(project => {
-        // console.log(project);
+        shaders.length = 0;
+        project.filters.map(filter => {
+          const builder = shaderDictionary.find(s => {
+            return s.filterRef == filter.filterRef;
+          });
+          const shader = builder.build(gl, filter.options);
+          shaders.push(shader);
+        });
+        console.log(shaders);
       });
 
       resizeCanvasToDisplaySize(gl.canvas, 1.5);
 
-      drawEffects();
+      let updateId;
+      let previousDelta = 0;
+      let fpsLimit = 15;
 
-      function drawEffects(name) {
-        // requestAnimationFrame(drawEffects);
+      update(0);
+      function update(currentDelta) {
+        updateId = requestAnimationFrame(update);
+
+        const delta = currentDelta - previousDelta;
+
+        if (fpsLimit && delta < 1000 / fpsLimit) {
+          return;
+        }
+
+        drawEffects();
+
+        previousDelta = currentDelta;
+      }
+
+      function drawEffects() {
         // Clear the canvas
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        console.log("anim frame");
+        console.log("draw");
 
         // Bind the position buffer.
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);

@@ -73,8 +73,6 @@ function render(image) {
   // create 2 textures and attach them to framebuffers.
   const textures = [];
   const framebuffers = [];
-
-
   for (let i = 0; i < 2; i++) {
     const texture = createAndSetupTexture(gl);
     textures.push(texture);
