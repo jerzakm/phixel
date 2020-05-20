@@ -1,11 +1,4 @@
 import {
-  defaultVertexShader,
-  greyscale,
-  pixelateFrag,
-  defaultFragmentShader
-} from './shaders/_defaultShaders';
-
-import {
   draw,
   setFramebuffer,
   setRectangle,
@@ -15,8 +8,17 @@ import {
   setupShader
 } from './renderUtils'
 import {
-  BasicShader
-} from './shaders/BasicShader';
+  DefaultShader
+} from './shaders/DefaultShader';
+import {
+  PixelateShader
+} from './shaders/PixelateShader';
+import {
+  GreyscaleShader
+} from './shaders/GreyscaleShader';
+import {
+  PaletteShader
+} from './shaders/PaletteShader';
 
 export const runWebGLDemo = async () => {
   main();
@@ -89,35 +91,12 @@ function render(image) {
       gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
   }
 
-  // setup GLSL program
-
-  const cleanProgram = createProgramFromString(gl, defaultVertexShader, defaultFragmentShader)
-  const pixelateProgram = createProgramFromString(gl, defaultVertexShader, pixelateFrag)
-  const greyscaleProgram = createProgramFromString(gl, defaultVertexShader, greyscale)
-
-  // const cleanShader = {
-  //   program: cleanProgram,
-  //   uniforms: {
-  //     positionLocation: gl.getAttribLocation(cleanProgram, "a_position"),
-  //     texcoordLocation: gl.getAttribLocation(cleanProgram, "a_texCoord"),
-  //     resolutionLocation: gl.getUniformLocation(cleanProgram, "u_resolution"),
-  //     textureSizeLocation: gl.getUniformLocation(cleanProgram, "u_textureSize"),
-  //     flipYLocation: gl.getUniformLocation(cleanProgram, "u_flipY")
-  //   }
-  // }
-
-  const cleanShader = BasicShader.build(gl)
-
-  const darkenShader = {
-    program: greyscaleProgram,
-    uniforms: {
-      positionLocation: gl.getAttribLocation(greyscaleProgram, "a_position"),
-      texcoordLocation: gl.getAttribLocation(greyscaleProgram, "a_texCoord"),
-      resolutionLocation: gl.getUniformLocation(greyscaleProgram, "u_resolution"),
-      textureSizeLocation: gl.getUniformLocation(greyscaleProgram, "u_textureSize"),
-      flipYLocation: gl.getUniformLocation(greyscaleProgram, "u_flipY")
-    }
-  }
+  const cleanShader = DefaultShader.build(gl)
+  const pixelateShader = PixelateShader.build(gl, {
+    size: 10
+  })
+  const greyscaleShader = GreyscaleShader.build(gl)
+  const paletteLimiter = PaletteShader.build(gl)
 
   drawEffects();
 
@@ -147,10 +126,10 @@ function render(image) {
 
 
 
-    for (var i = 0; i < 5; i++) {
-      setupShader(gl, image, darkenShader)
+    for (var i = 0; i < 1; i++) {
+      setupShader(gl, image, pixelateShader)
       // Setup to draw into one of the framebuffers.
-      setFramebuffer(gl, darkenShader, framebuffers[i % 2], image.width, image.height);
+      setFramebuffer(gl, pixelateShader, framebuffers[i % 2], image.width, image.height);
 
       draw(gl);
 
