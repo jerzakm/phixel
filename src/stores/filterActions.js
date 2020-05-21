@@ -12,7 +12,6 @@ currentProject.subscribe((p) => {
 })
 
 export const updateFilterProperty = (filterId, property, value) => {
-  console.log('updating')
   const filterIndex = project.filters.findIndex(filter => {
     return filter.id == filterId;
   });

@@ -6,6 +6,7 @@
   let pickr;
 
   export let color;
+  let oldColor = color;
 
   import { createEventDispatcher } from "svelte";
 
@@ -55,6 +56,18 @@
         }
       }
     });
+    pickr.getRoot().button.addEventListener("pointerdown", e => {
+      if (e.button == 2) {
+        dispatch("removeColor", {
+          color: pickr
+            .getColor()
+            .toHEXA()
+            .toString()
+        });
+        pickr.destroyAndRemove();
+      }
+    });
+
     pickr
       .on("init", instance => {
         // console.log("init", instance);
@@ -67,8 +80,10 @@
       })
       .on("save", (color, instance) => {
         dispatch("colorChange", {
+          oldColor,
           color: color.toHEXA().toString()
         });
+        oldColor = color.toHEXA().toString();
       })
       .on("clear", instance => {
         // console.log("clear", instance);
@@ -85,6 +100,9 @@
       })
       .on("swatchselect", (color, instance) => {
         // console.log("swatchselect", color, instance);
+      })
+      .on("contextmenu", (color, instance) => {
+        console.log("swatchselect", color, instance);
       });
   });
 </script>
@@ -93,4 +111,4 @@
 
 </style>
 
-<div bind:this={el} id={color} />
+<div bind:this={el} id={color} class="color-picker" />

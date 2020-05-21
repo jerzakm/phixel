@@ -23,7 +23,7 @@ export const createExampleProject = () => {
   }
 
   for (const f of shaderDictionary) {
-    if (f.filterRef == 'colorGrading') {
+    if (f.filterRef == 'paletteLimiter') {
       const filter = Object.create(f)
       filter.id = uuidv4()
       filter.enabled = true
