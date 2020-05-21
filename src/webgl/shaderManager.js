@@ -10,5 +10,8 @@ import {
 import {
   PixelateShader
 } from "./shaders/PixelateShader";
+import {
+  ColorGrading
+} from "./shaders/ColorGrading";
 
-export const shaderDictionary = [BloomShader, GreyscaleShader, PaletteShader, PixelateShader]
+export const shaderDictionary = [BloomShader, GreyscaleShader, PaletteShader, PixelateShader, ColorGrading]
