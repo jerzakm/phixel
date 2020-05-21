@@ -13,5 +13,15 @@ import {
 import {
   ColorGrading
 } from "./shaders/ColorGrading";
+import {
+  SobelEdgeShader
+} from "./shaders/SobelEdgeShader";
 
-export const shaderDictionary = [BloomShader, GreyscaleShader, PaletteShader, PixelateShader, ColorGrading]
+export const shaderDictionary = [
+  BloomShader,
+  GreyscaleShader,
+  PaletteShader,
+  PixelateShader,
+  ColorGrading,
+  SobelEdgeShader
+]
