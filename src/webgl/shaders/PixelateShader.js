@@ -52,5 +52,13 @@ export const PixelateShader = {
   name: 'Pixelate',
   build,
   defaultOptions,
-  options: []
+  options: [{
+    name: 'Size',
+    desc: 'Size of the pixel on the original image',
+    type: 'slider',
+    min: 1,
+    max: 64,
+    step: 1,
+    filterProperty: 'size'
+  }]
 }

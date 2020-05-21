@@ -4,11 +4,9 @@
   import Button, { Label } from "@smui/button";
   import IconButton, { Icon } from "@smui/icon-button";
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
-  import { filterDictionary } from "../../filterManager.js";
   import FilterGallery from "./FilterGallery.svelte";
   import Sortable from "svelte-sortablejs";
   import { currentProject, filterUpdate, selectedFilter } from "../../stores";
-  import FilterOptions from "./FilterOptions.svelte";
 
   let filterGalleryDialog;
   let clicked = "nope";
@@ -116,7 +114,6 @@
                 <Checkbox bind:checked={filter.value.enabled} />
               </FormField>
             </div>
-            <!-- <FilterOptions {filter} /> -->
           </div>
         </div>
       </li>

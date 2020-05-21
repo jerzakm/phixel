@@ -1,7 +1,6 @@
 <script>
-  // import Canvas from "./Canvas.svelte";
   import FilterList from "./FilterList.svelte";
-  // import FilterOptionWindow from "./FilterOptionWindow.svelte";
+  import FilterOptionWindow from "./FilterOptionWindow.svelte";
   import CanvasWEBGL from "./CanvasWEBGL.svelte";
   import { currentProject } from "../../stores";
 
@@ -22,10 +21,6 @@
     display: flex;
     flex-direction: row;
   }
-  /* .layers {
-    background-color: #cecece;
-    width: 150px;
-  } */
   .filters {
     background-color: #dddddd;
     width: 100%;
@@ -33,12 +28,11 @@
   }
 </style>
 
-<!-- <Canvas /> -->
+<CanvasWEBGL {imgPath} />
 <div class="card">
   <div class="filters">
     <FilterList />
   </div>
 </div>
 
-<!-- <FilterOptionWindow /> -->
-<CanvasWEBGL {imgPath} />
+<FilterOptionWindow />

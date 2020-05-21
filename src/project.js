@@ -5,8 +5,8 @@ import {
   uuidv4
 } from "./util"
 import {
-  filterDictionary
-} from "./filterManager"
+  shaderDictionary
+} from "./webgl/shaderManager"
 
 export const loadProject = (project) => {
   // @ts-ignore
@@ -22,7 +22,7 @@ export const createExampleProject = () => {
     filters: []
   }
 
-  for (const f of filterDictionary) {
+  for (const f of shaderDictionary) {
     // const filter: any = Object.create(f)
     // filter.id = uuidv4()
     // filter.enabled = true

@@ -9,5 +9,5 @@
   loadProject(example);
 </script>
 
-<!-- <Topbar /> -->
+<Topbar />
 <Editor />

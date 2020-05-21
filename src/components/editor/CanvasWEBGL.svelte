@@ -115,11 +115,13 @@
       currentProject.subscribe(project => {
         shaders.length = 0;
         project.filters.map(filter => {
-          const builder = shaderDictionary.find(s => {
-            return s.filterRef == filter.filterRef;
-          });
-          const shader = builder.build(gl, filter.options);
-          shaders.push(shader);
+          if (filter.enabled) {
+            const builder = shaderDictionary.find(s => {
+              return s.filterRef == filter.filterRef;
+            });
+            const shader = builder.build(gl, filter.options);
+            shaders.push(shader);
+          }
         });
         console.log(shaders);
       });
@@ -128,7 +130,7 @@
 
       let updateId;
       let previousDelta = 0;
-      let fpsLimit = 15;
+      let fpsLimit = 60;
 
       update(0);
       function update(currentDelta) {
@@ -140,16 +142,15 @@
           return;
         }
 
-        drawEffects();
+        drawWithShaders();
 
         previousDelta = currentDelta;
       }
 
-      function drawEffects() {
+      function drawWithShaders() {
         // Clear the canvas
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        console.log("draw");
 
         // Bind the position buffer.
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
