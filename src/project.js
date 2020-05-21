@@ -1,6 +1,6 @@
 import {
   currentProject
-} from "./stores"
+} from "./stores/stores"
 import {
   uuidv4
 } from "./util"
@@ -23,11 +23,13 @@ export const createExampleProject = () => {
   }
 
   for (const f of shaderDictionary) {
-    const filter = Object.create(f)
-    filter.id = uuidv4()
-    filter.enabled = true
-    filter.options = f.defaultOptions
-    project.filters.push(filter)
+    if (f.filterRef == 'colorGrading') {
+      const filter = Object.create(f)
+      filter.id = uuidv4()
+      filter.enabled = true
+      filter.options = f.defaultOptions
+      project.filters.push(filter)
+    }
   }
 
   return project

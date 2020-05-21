@@ -14,7 +14,7 @@
   import { GreyscaleShader } from "../../webgl/shaders/GreyscaleShader";
   import { PaletteShader } from "../../webgl/shaders/PaletteShader";
   import { BloomShader } from "../../webgl/shaders/BloomShader";
-  import { currentProject } from "../../stores";
+  import { currentProject } from "../../stores/stores";
   import { shaderDictionary } from "../../webgl/shaderManager.js";
 
   let canvas;

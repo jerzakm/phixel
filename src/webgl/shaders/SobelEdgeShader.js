@@ -12,7 +12,8 @@ const defaultOptions = {
   edgeColor: [
     '#f6757a'
   ],
-  intensity: 0.33333
+  intensity: 0.33333,
+  treshold: 0.2
 }
 
 const buildFs = (options) => {
@@ -61,15 +62,20 @@ const buildFs = (options) => {
     vec4 color = texture2D(u_image, uv);
     float edgeIntensity = applyKernel(Gx, Gy, u_image, uv);
 
+    if(edgeIntensity<${options.treshold.toFixed(2)}){
+      edgeIntensity = 0.0;
+    }
+
     vec4 edgeColor = mix(
         vec4(${edgeColor.r/255}, ${edgeColor.g/255}, ${edgeColor.b/255}, 1.0),
         color,
         1.0-edgeIntensity);
 
+
     color = mix(
         color,
         edgeColor,
-        step(0.0, uv.x));
+        1.0);
 
 	gl_FragColor = color;
 
@@ -101,19 +107,29 @@ export const SobelEdgeShader = {
   build,
   defaultOptions,
   options: [{
-    name: 'Edge Color',
-    desc: '',
-    type: 'colorPicker',
-    qty: 1,
-    color: [],
-    filterProperty: 'edgeColor'
-  }, {
-    name: 'Intensity',
-    desc: '',
-    type: 'slider',
-    min: 0,
-    max: 2,
-    step: 0.01,
-    filterProperty: 'intensity'
-  }]
+      name: 'Edge Color',
+      desc: '',
+      type: 'colorPicker',
+      qty: 1,
+      color: [],
+      filterProperty: 'edgeColor'
+    }, {
+      name: 'Intensity',
+      desc: '',
+      type: 'slider',
+      min: 0,
+      max: 1,
+      step: 0.01,
+      filterProperty: 'intensity'
+    },
+    {
+      name: 'Treshold',
+      desc: '',
+      type: 'slider',
+      min: 0,
+      max: 3,
+      step: 0.01,
+      filterProperty: 'treshold'
+    }
+  ]
 }

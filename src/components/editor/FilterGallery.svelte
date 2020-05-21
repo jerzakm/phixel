@@ -2,8 +2,9 @@
   import Button, { Label } from "@smui/button";
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
   import { shaderDictionary } from "../../webgl/shaderManager.js";
-  import { currentProject } from "../../stores";
+  import { currentProject } from "../../stores/stores";
   import { uuidv4 } from "../../util.js";
+  import { addNewFilter } from "../../stores/filterActions.js";
   export let filterGalleryDialog;
 
   let tempProject = {};
@@ -20,16 +21,6 @@
       });
     }
   });
-
-  function addFilter(filter) {
-    tempProject.filters.push({
-      id: uuidv4(),
-      filterRef: filter.filterRef,
-      enabled: true,
-      options: filter.defaultOptions
-    });
-    currentProject.set(tempProject);
-  }
 </script>
 
 <Dialog
@@ -40,7 +31,7 @@
   <Content id="simple-content">
     {#each shaderDictionary as filter}
       <Button
-        on:click={() => addFilter(filter)}
+        on:click={() => addNewFilter(filter)}
         variant="raised"
         color="secondary">
         <Label>{filter.name}</Label>

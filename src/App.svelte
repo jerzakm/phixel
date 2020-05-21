@@ -1,7 +1,7 @@
 <script>
   import Topbar from "./components/Topbar.svelte";
   import Editor from "./components/editor/Editor.svelte";
-  import { currentProject } from "./stores";
+  import { currentProject } from "./stores/stores";
 
   import { createExampleProject, loadProject } from "./project";
 

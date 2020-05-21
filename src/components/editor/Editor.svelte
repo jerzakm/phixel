@@ -2,7 +2,7 @@
   import FilterList from "./FilterList.svelte";
   import FilterOptionWindow from "./FilterOptionWindow.svelte";
   import CanvasWEBGL from "./CanvasWEBGL.svelte";
-  import { currentProject } from "../../stores";
+  import { currentProject } from "../../stores/stores";
 
   let imgPath;
   currentProject.subscribe(project => {

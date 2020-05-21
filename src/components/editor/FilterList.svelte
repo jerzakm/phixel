@@ -6,7 +6,11 @@
   import Dialog, { Title, Content, Actions, InitialFocus } from "@smui/dialog";
   import FilterGallery from "./FilterGallery.svelte";
   import Sortable from "svelte-sortablejs";
-  import { currentProject, filterUpdate, selectedFilter } from "../../stores";
+  import {
+    currentProject,
+    filterUpdate,
+    selectedFilter
+  } from "../../stores/stores";
 
   let filterGalleryDialog;
   let clicked = "nope";

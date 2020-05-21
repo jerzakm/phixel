@@ -2,10 +2,15 @@
   import Textfield, { Input, Textarea } from "@smui/textfield";
   import ColorPicker from "./ColorPicker.svelte";
   import { shaderDictionary } from "../../webgl/shaderManager.js";
+  import { onMount } from "svelte";
+  import {
+    filterUpdate,
+    currentProject,
+    selectedFilter
+  } from "../../stores/stores";
+  import { updateFilterProperty } from "../../stores/filterActions.js";
 
   let filter;
-
-  import { filterUpdate, currentProject, selectedFilter } from "../../stores";
 
   let filterOptions;
 
@@ -33,16 +38,13 @@
     }
   });
 
-  function update() {
-    const i = tempProject.filters.findIndex(f => {
-      return f.id == filter.id;
-    });
-    tempProject.filters[i] = filter;
-    currentProject.set(tempProject);
-    filterUpdate.set(true);
-  }
+  // $: filter && update();
 
-  $: filter && update();
+  let mounted;
+
+  onMount(() => {
+    mounted = true;
+  });
 </script>
 
 <style>
@@ -62,37 +64,41 @@
   }
 </style>
 
-<div class="filter-option-container">
-  {selecteduuid} //
-  {#if filter && filterOptions}
-    <div class="filter-options-container">
-      {#each filterOptions as option}
-        {#if option.type == 'slider'}
-          <div class="filter-options-slider-container">
-            <span>{option.name}</span>
-            <input
-              type="range"
-              bind:value={filter.options[`${option.filterProperty}`]}
-              min={option.min}
-              max={option.max}
-              step={option.step} />
-            <span>{filter.options[`${option.filterProperty}`]}</span>
-          </div>
-        {:else if option.type == 'colorPicker'}
-          <div class="filter-options-colorPicker-container">
-            <span class="filter-name">{option.name}</span>
-            <div class="color-list">
-              {#each filter.options[`${option.filterProperty}`] as color, i}
-                <ColorPicker
-                  {color}
-                  on:colorChange={event => {
-                    filter.options[`${option.filterProperty}`][i] = event.detail.color;
-                  }} />
-              {/each}
+{#if mounted}
+  <div class="filter-option-container">
+    {#if filter && filterOptions}
+      <div class="filter-options-container">
+        {#each filterOptions as option}
+          {#if option.type == 'slider'}
+            <div class="filter-options-slider-container">
+              <span>{option.name}</span>
+              <input
+                type="range"
+                bind:value={filter.options[`${option.filterProperty}`]}
+                min={option.min}
+                max={option.max}
+                on:input={event => {
+                  updateFilterProperty(selecteduuid, option.filterProperty, event.target.value);
+                }}
+                step={option.step} />
+              <span>{filter.options[`${option.filterProperty}`]}</span>
             </div>
-          </div>
-        {/if}
-      {/each}
-    </div>
-  {/if}
-</div>
+          {:else if option.type == 'colorPicker'}
+            <div class="filter-options-colorPicker-container">
+              <span class="filter-name">{option.name}</span>
+              <div class="color-list">
+                {#each filter.options[`${option.filterProperty}`] as color, i}
+                  <ColorPicker
+                    {color}
+                    on:colorChange={event => {
+                      filter.options[`${option.filterProperty}`][i] = event.detail.color;
+                    }} />
+                {/each}
+              </div>
+            </div>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+  </div>
+{/if}

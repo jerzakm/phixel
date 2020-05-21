@@ -3,7 +3,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import {
     userAuth
-} from './stores';
+} from './stores/stores';
 
 const firebaseConfig = {
     apiKey: "AIzaSyAjCgYB9VdcCacpWLaWTN4UBCXoUgJlHGA",

@@ -3,7 +3,7 @@ import {
 } from 'svelte/store';
 import {
   Project
-} from './project';
+} from '../project';
 
 const emptyProject = {
   id: '',
