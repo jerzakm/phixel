@@ -1,6 +1,7 @@
 <script>
   import Textfield, { Input, Textarea } from "@smui/textfield";
   import ColorPicker from "./ColorPicker.svelte";
+  import { shaderDictionary } from "../../webgl/shaderManager.js";
 
   let filter;
 
@@ -24,7 +25,7 @@
           filter = f;
         }
       }
-      for (const f of filterDictionary) {
+      for (const f of shaderDictionary) {
         if (f.filterRef == filter.filterRef) {
           filterOptions = f.options;
         }
@@ -62,7 +63,7 @@
 </style>
 
 <div class="filter-option-container">
-  {selecteduuid}
+  {selecteduuid} //
   {#if filter && filterOptions}
     <div class="filter-options-container">
       {#each filterOptions as option}

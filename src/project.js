@@ -23,11 +23,11 @@ export const createExampleProject = () => {
   }
 
   for (const f of shaderDictionary) {
-    // const filter: any = Object.create(f)
-    // filter.id = uuidv4()
-    // filter.enabled = true
-    // filter.options = f.defaultOptions
-    // project.filters.push(filter)
+    const filter = Object.create(f)
+    filter.id = uuidv4()
+    filter.enabled = true
+    filter.options = f.defaultOptions
+    project.filters.push(filter)
   }
 
   return project

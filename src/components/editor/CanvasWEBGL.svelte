@@ -110,27 +110,30 @@
       const cleanShader = DefaultShader.build(gl);
 
       const shaders = [];
-
+      let currentShaderOptions = "";
       // SHADER UPDATER
       currentProject.subscribe(project => {
-        shaders.length = 0;
-        project.filters.map(filter => {
-          if (filter.enabled) {
-            const builder = shaderDictionary.find(s => {
-              return s.filterRef == filter.filterRef;
-            });
-            const shader = builder.build(gl, filter.options);
-            shaders.push(shader);
-          }
-        });
-        console.log(shaders);
+        const fUpdate = JSON.stringify(project.filters);
+        if (fUpdate !== currentShaderOptions) {
+          shaders.length = 0;
+          project.filters.map(filter => {
+            if (filter.enabled) {
+              const builder = shaderDictionary.find(s => {
+                return s.filterRef == filter.filterRef;
+              });
+              const shader = builder.build(gl, filter.options);
+              shaders.push(shader);
+            }
+          });
+          currentShaderOptions = fUpdate;
+        }
       });
 
       resizeCanvasToDisplaySize(gl.canvas, 1.5);
 
       let updateId;
       let previousDelta = 0;
-      let fpsLimit = 60;
+      let fpsLimit = 30;
 
       update(0);
       function update(currentDelta) {

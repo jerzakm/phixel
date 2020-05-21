@@ -79,5 +79,12 @@ export const PaletteShader = {
   name: 'Palette Limiter',
   build,
   defaultOptions,
-  options: []
+  options: [{
+    name: 'Palette',
+    desc: '',
+    type: 'colorPicker',
+    qty: 256,
+    color: [],
+    filterProperty: 'palette'
+  }, ]
 }

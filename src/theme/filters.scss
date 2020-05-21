@@ -34,12 +34,14 @@
 
   .color-list {
     display: flex;
-    align-items: center;
-    justify-content: space-around;
-
-    .color-box {
-      width: 20px;
-      height: 20px;
-    }
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 300px;
+    justify-content: flex-start;
   }
+}
+
+// color picker square padding
+.pickr {
+  padding: 2px 2px;
 }
