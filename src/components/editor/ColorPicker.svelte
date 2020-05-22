@@ -6,6 +6,9 @@
   let pickr;
 
   export let color;
+  export let noDestroy;
+
+  console.log(noDestroy);
   let oldColor = color;
 
   import { createEventDispatcher } from "svelte";
@@ -13,9 +16,9 @@
   const dispatch = createEventDispatcher();
 
   onDestroy(() => {
-    // if (pickr) {
-    //   pickr.destroyAndRemove();
-    // }
+    if (pickr) {
+      pickr.destroyAndRemove();
+    }
   });
 
   onMount(() => {
@@ -58,17 +61,20 @@
         }
       }
     });
-    pickr.getRoot().button.addEventListener("pointerdown", e => {
-      if (e.button == 2) {
-        dispatch("removeColor", {
-          color: pickr
-            .getColor()
-            .toHEXA()
-            .toString()
-        });
-        pickr.destroyAndRemove();
-      }
-    });
+
+    if (!noDestroy) {
+      pickr.getRoot().button.addEventListener("pointerdown", e => {
+        if (e.button == 2) {
+          dispatch("removeColor", {
+            color: pickr
+              .getColor()
+              .toHEXA()
+              .toString()
+          });
+          pickr.destroyAndRemove();
+        }
+      });
+    }
 
     pickr
       .on("init", instance => {

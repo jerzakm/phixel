@@ -89,6 +89,7 @@
             <div class="color-list">
               {#each filter.options[`${option.filterProperty}`] as color, i}
                 <ColorPicker
+                  noDestroy={option.noDestroy}
                   {color}
                   on:removeColor={event => {
                     const index = filter.options[`${option.filterProperty}`].findIndex(

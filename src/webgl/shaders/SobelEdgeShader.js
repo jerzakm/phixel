@@ -112,6 +112,7 @@ export const SobelEdgeShader = {
       desc: '',
       type: 'colorPicker',
       qty: 1,
+      noDestroy: true,
       color: [],
       filterProperty: 'edgeColor'
     }, {
