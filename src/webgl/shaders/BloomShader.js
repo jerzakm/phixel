@@ -5,9 +5,12 @@ import {
   defaultVertexShader
 } from './_defaultShaders'
 
-const defaultOptions = {}
+const defaultOptions = {
+  size: 1,
+  intensity: 0.35
+}
 
-const buildFs = () => {
+const buildFs = (options) => {
   return `
   precision mediump float;
 
@@ -23,8 +26,8 @@ const buildFs = () => {
 
     vec4 color = texture2D(u_image, v_texCoord);
 
-    const float blurSize = 1.0/512.0;
-    const float intensity = 0.35;
+    const float blurSize = ${options.size.toFixed(2)}/512.0;
+    const float intensity = ${options.intensity.toFixed(2)};
 
     vec4 sum = vec4(0);
     vec2 texcoord = v_texCoord;
@@ -54,17 +57,16 @@ const buildFs = () => {
     sum += texture2D(u_image, vec2(texcoord.x, texcoord.y + 3.0*blurSize)) * 0.09;
     sum += texture2D(u_image, vec2(texcoord.x, texcoord.y + 4.0*blurSize)) * 0.05;
 
-    vec4 resColor = sum * sin(0.25) + texture2D(u_image, v_texCoord);
+    vec4 resColor = 0.5 * sum * sin(intensity) + texture2D(u_image, v_texCoord);
 
     gl_FragColor = resColor;
-    // gl_FragColor = texture2D(u_image, v_texCoord);
   }`
 }
 
 const build = (gl, options) => {
   const o = Object.create(defaultOptions)
   Object.assign(o, options)
-  const fs = buildFs()
+  const fs = buildFs(options)
   const program = createProgramFromString(gl, defaultVertexShader, fs)
   const uniforms = {
     positionLocation: gl.getAttribLocation(program, "a_position"),
@@ -84,5 +86,21 @@ export const BloomShader = {
   name: 'Bloom',
   build,
   defaultOptions,
-  options: []
+  options: [{
+    name: 'Size',
+    desc: '',
+    type: 'slider',
+    min: 0,
+    max: 10,
+    step: 0.1,
+    filterProperty: 'size'
+  }, {
+    name: 'Intensity',
+    desc: '',
+    type: 'slider',
+    min: 0,
+    max: 1,
+    step: 0.01,
+    filterProperty: 'intensity'
+  }]
 }

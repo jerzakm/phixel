@@ -13,7 +13,9 @@
   const dispatch = createEventDispatcher();
 
   onDestroy(() => {
-    pickr.destroyAndRemove();
+    // if (pickr) {
+    //   pickr.destroyAndRemove();
+    // }
   });
 
   onMount(() => {

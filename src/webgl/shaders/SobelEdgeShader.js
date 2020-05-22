@@ -87,6 +87,7 @@ const build = (gl, options) => {
   const o = Object.create(defaultOptions)
   Object.assign(o, options)
   const fs = buildFs(o)
+  console.log(o.edgeColor)
   const program = createProgramFromString(gl, defaultVertexShader, fs)
   const uniforms = {
     positionLocation: gl.getAttribLocation(program, "a_position"),

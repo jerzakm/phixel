@@ -45,3 +45,14 @@
 .pickr {
   padding: 2px 2px;
 }
+
+.color-picker-add {
+  padding: 0px;
+  margin: 1px;
+  width: 26px;
+  height: 26px;
+  border-radius: .15em;
+  font-size: 1.9em;
+  cursor: pointer;
+  user-select: none;
+}

@@ -9,6 +9,7 @@
     selectedFilter
   } from "../../stores/stores";
   import { updateFilterProperty } from "../../stores/filterActions.js";
+  import IconButton, { Icon } from "@smui/icon-button";
 
   let filter;
 
@@ -109,6 +110,17 @@
                     updateFilterProperty(selecteduuid, option.filterProperty, filter.options[`${option.filterProperty}`]);
                   }} />
               {/each}
+              {#if option.qty > 1}
+                <Icon
+                  class="material-icons color-picker-add"
+                  on:click={() => {
+                    filter.options[`${option.filterProperty}`].push('#FFFFFF');
+                    filter = filter;
+                    updateFilterProperty(selecteduuid, option.filterProperty, filter.options[`${option.filterProperty}`]);
+                  }}>
+                  add
+                </Icon>
+              {/if}
             </div>
           </div>
         {/if}
