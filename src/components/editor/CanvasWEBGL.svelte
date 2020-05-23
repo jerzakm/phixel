@@ -9,6 +9,8 @@
     createAndSetupTexture,
     setupShader
   } from "../../webgl/renderUtils.js";
+
+  import { uuidv4 } from "../../util.js";
   import { DefaultShader } from "../../webgl/shaders/DefaultShader";
   import { PixelateShader } from "../../webgl/shaders/PixelateShader";
   import { GreyscaleShader } from "../../webgl/shaders/GreyscaleShader";
@@ -19,14 +21,23 @@
 
   export let imgPath;
 
-  const image = new Image();
-  image.src = imgPath;
-  image.onload = function() {
-    render(image);
-  };
+  function renderImage(path) {
+    const image = new Image();
+    image.src = path;
+    image.onload = function() {
+      render(image);
+    };
+  }
+
+  $: renderImage(imgPath);
+
+  let rendererId = "";
 
   function render(image) {
     const gl = document.getElementById("webgl-img-canvas").getContext("webgl");
+
+    const thisRendererId = uuidv4();
+    let rendererId = thisRendererId;
 
     // Create a buffer to put three 2d clip space points in
     const positionBuffer = gl.createBuffer();
@@ -121,13 +132,17 @@
 
     resizeCanvasToDisplaySize(gl.canvas, 1.5);
 
-    let updateId;
     let previousDelta = 0;
     let fpsLimit = 30;
 
     update(0);
     function update(currentDelta) {
-      updateId = requestAnimationFrame(update);
+      if (rendererId == thisRendererId) {
+        requestAnimationFrame(update);
+      } else {
+        console.log("diff renderer");
+        gl.clear();
+      }
 
       const delta = currentDelta - previousDelta;
 
