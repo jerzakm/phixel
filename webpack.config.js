@@ -1,5 +1,6 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const HtmlWebPackPlugin = require("html-webpack-plugin")
 
 const path = require('path');
 
@@ -25,29 +26,29 @@ module.exports = {
     filename: '[name].js',
     chunkFilename: '[name].[id].js'
   },
-  // optimization: {
-  //   minimize: true,
-  //   minimizer: [
-  //     new TerserPlugin({
-  //       terserOptions: {
-  //         ecma: undefined,
-  //         warnings: false,
-  //         parse: {},
-  //         compress: {},
-  //         mangle: true, // Note `mangle.properties` is `false` by default.
-  //         module: false,
-  //         output: null,
-  //         toplevel: false,
-  //         nameCache: null,
-  //         ie8: false,
-  //         keep_classnames: undefined,
-  //         keep_fnames: false,
-  //         safari10: false,
-  //       },
-  //       extractComments: 'all'
-  //     }),
-  //   ],
-  // },
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          ecma: undefined,
+          warnings: false,
+          parse: {},
+          compress: {},
+          mangle: true, // Note `mangle.properties` is `false` by default.
+          module: false,
+          output: null,
+          toplevel: false,
+          nameCache: null,
+          ie8: false,
+          keep_classnames: undefined,
+          keep_fnames: false,
+          safari10: false,
+        },
+        extractComments: 'all'
+      }),
+    ],
+  },
   module: {
     rules: [{
         test: /\.scss$/,
@@ -107,7 +108,11 @@ module.exports = {
   plugins: [
     new MiniCssExtractPlugin({
       filename: '[name].css'
-    })
+    }),
+    new HtmlWebPackPlugin({
+      template: "src/index.html",
+      filename: "./index.html"
+    }),
   ],
   devtool: prod ? false : 'source-map'
 };
