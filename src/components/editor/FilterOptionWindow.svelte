@@ -41,6 +41,13 @@
     }
   });
 
+  function refreshFilter() {
+    const filterIndex = tempProject.filters.findIndex(filter => {
+      return filter.id == selecteduuid;
+    });
+    filter = tempProject.filters[filterIndex];
+  }
+
   onMount(() => {
     filterOptionWindow.oncontextmenu = () => {
       return false;
@@ -108,6 +115,11 @@
                       }
                     );
                     filter.options[`${option.filterProperty}`][index] = event.detail.color;
+                    for (let i = filter.options[`${option.filterProperty}`].length; i >= 0; i--) {
+                      if (!filter.options[`${option.filterProperty}`][i]) {
+                        filter.options[`${option.filterProperty}`].splice(i, 1);
+                      }
+                    }
                     updateFilterProperty(selecteduuid, option.filterProperty, filter.options[`${option.filterProperty}`]);
                   }} />
               {/each}
@@ -115,8 +127,8 @@
                 <Icon
                   class="material-icons color-picker-add"
                   on:click={() => {
-                    filter.options[`${option.filterProperty}`].push('#FFFFFF');
-                    filter = filter;
+                    refreshFilter();
+                    filter.options[`${option.filterProperty}`].push(`#FFFFFF`);
                     updateFilterProperty(selecteduuid, option.filterProperty, filter.options[`${option.filterProperty}`]);
                   }}>
                   add

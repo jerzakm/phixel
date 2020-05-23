@@ -8,7 +8,6 @@
   export let color;
   export let noDestroy;
 
-  console.log(noDestroy);
   let oldColor = color;
 
   import { createEventDispatcher } from "svelte";
@@ -57,7 +56,8 @@
           hsva: false,
           cmyk: false,
           input: true,
-          save: true
+          save: true,
+          clear: noDestroy ? false : true
         }
       }
     });
@@ -65,13 +65,15 @@
     if (!noDestroy) {
       pickr.getRoot().button.addEventListener("pointerdown", e => {
         if (e.button == 2) {
-          dispatch("removeColor", {
-            color: pickr
-              .getColor()
-              .toHEXA()
-              .toString()
-          });
-          pickr.destroyAndRemove();
+          if (pickr.getColor() && !noDestroy) {
+            dispatch("removeColor", {
+              color: pickr
+                .getColor()
+                .toHEXA()
+                .toString()
+            });
+            pickr.setColor(null);
+          }
         }
       });
     }
@@ -87,15 +89,15 @@
         // console.log("show", color, instance);
       })
       .on("save", (color, instance) => {
+        const c = color ? color.toHEXA().toString() : null;
+        console.log(c);
         dispatch("colorChange", {
           oldColor,
-          color: color.toHEXA().toString()
+          color: c
         });
-        oldColor = color.toHEXA().toString();
+        oldColor = color ? color.toHEXA().toString() : null;
       })
-      .on("clear", instance => {
-        // console.log("clear", instance);
-      })
+      .on("clear", instance => {})
       .on("change", (color, instance) => {
         // console.log("change", color, instance);
         pickr.applyColor();
@@ -110,7 +112,7 @@
         // console.log("swatchselect", color, instance);
       })
       .on("contextmenu", (color, instance) => {
-        console.log("swatchselect", color, instance);
+        // console.log("swatchselect", color, instance);
       });
   });
 </script>

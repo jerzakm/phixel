@@ -23,5 +23,5 @@ export const shaderDictionary = [
   PaletteShader,
   PixelateShader,
   ColorGrading,
-  SobelEdgeShader
+  // SobelEdgeShader
 ]
