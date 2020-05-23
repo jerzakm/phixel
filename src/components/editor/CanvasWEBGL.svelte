@@ -10,6 +10,8 @@
     setupShader
   } from "../../webgl/renderUtils.js";
 
+  import Slider from "@smui/slider";
+
   import { uuidv4 } from "../../util.js";
   import { DefaultShader } from "../../webgl/shaders/DefaultShader";
   import { PixelateShader } from "../../webgl/shaders/PixelateShader";
@@ -21,11 +23,31 @@
 
   export let imgPath;
 
+  let canvas;
+  let scale = 100;
+
+  let img;
+
+  function resizeCanvasToImgSize() {
+    canvas.width = img.width;
+    canvas.height = img.height;
+  }
+
+  function rescaleImg() {
+    if (canvas) {
+      canvas.style.width = `${(scale / 100) * img.width}px`;
+    }
+  }
+
+  $: img && resizeCanvasToImgSize();
+  $: scale && rescaleImg();
+
   function renderImage(path) {
     const image = new Image();
     image.src = path;
     image.onload = function() {
       render(image);
+      img = image;
     };
   }
 
@@ -130,7 +152,7 @@
       }
     });
 
-    resizeCanvasToDisplaySize(gl.canvas, 1.5);
+    // resizeCanvasToDisplaySize(gl.canvas, 1);
 
     let previousDelta = 0;
     let fpsLimit = 30;
@@ -211,4 +233,22 @@
   }
 </script>
 
-<canvas id="webgl-img-canvas" />
+<style>
+  .canvas-size-slider-container {
+    position: fixed;
+    top: 5px;
+    left: 200px;
+    width: 200px;
+    z-index: 500;
+  }
+  .img-scale {
+    color: white;
+  }
+</style>
+
+<canvas id="webgl-img-canvas" bind:this={canvas} />
+
+<div class="canvas-size-slider-container">
+  <span class="img-scale">Image scale: {scale}%</span>
+  <Slider bind:value={scale} min={10} max={500} step={10} discrete />
+</div>
