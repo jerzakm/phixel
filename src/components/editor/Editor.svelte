@@ -2,11 +2,17 @@
   import FilterList from "./FilterList.svelte";
   import FilterOptionWindow from "./FilterOptionWindow.svelte";
   import CanvasWEBGL from "./CanvasWEBGL.svelte";
-  import { currentProject } from "../../stores/stores";
+  import { currentProject, selectedFilter } from "../../stores/stores";
 
   let imgPath;
+  let selectedFilterUuid;
+
   currentProject.subscribe(project => {
     imgPath = project.image;
+  });
+
+  selectedFilter.subscribe(selectedFilter => {
+    selectedFilterUuid = selectedFilter;
   });
 </script>
 
@@ -35,4 +41,6 @@
   </div>
 </div>
 
-<FilterOptionWindow />
+{#if selectedFilterUuid}
+  <FilterOptionWindow />
+{/if}
