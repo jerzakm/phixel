@@ -1,4 +1,5 @@
 .rp2_cache/*
-public/
+public/bundle.*
+public/index.*
 node_modules/
 /.rpt2_cache
