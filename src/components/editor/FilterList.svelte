@@ -12,6 +12,8 @@
     selectedFilter
   } from "../../stores/stores";
 
+  import { selectFilter } from "../../stores/filterActions.js";
+
   let filterGalleryDialog;
   let clicked = "nope";
 
@@ -106,7 +108,7 @@
           <div
             class={currentSelected === filter.value.id ? 'selected-filter filter-entry' : 'filter-entry'}>
             <div class="filter-entry-min">
-              <Button on:click={() => selectedFilter.set(filter.value.id)}>
+              <Button on:click={() => selectFilter(filter.value.id)}>
                 {filter.value.filterRef}
               </Button>
               <IconButton

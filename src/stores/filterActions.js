@@ -1,14 +1,20 @@
 import {
-  currentProject
+  currentProject,
+  selectedFilter
 } from './stores'
 import {
   uuidv4
 } from '../util'
 
 let project
+let selectedFilterUuid
 
 currentProject.subscribe((p) => {
   project = p
+})
+
+selectedFilter.subscribe((id) => {
+  selectedFilterUuid = id
 })
 
 export const updateFilterProperty = (filterId, property, value) => {
@@ -33,4 +39,12 @@ export const addNewFilter = ({
   }
   project.filters.push(newFilter)
   currentProject.set(project)
+}
+
+export const selectFilter = (filterId) => {
+  if (filterId == selectedFilterUuid) {
+    selectedFilter.set(null)
+  } else {
+    selectedFilter.set(filterId)
+  }
 }
