@@ -24,13 +24,13 @@ export const createExampleProject = () => {
   }
 
   for (const f of shaderDictionary) {
-    // if (f.filterRef == 'paletteLimiter') {
-    const filter = Object.create(f)
-    filter.id = uuidv4()
-    filter.enabled = true
-    filter.options = f.defaultOptions
-    project.filters.push(filter)
-    // }
+    if (f.filterRef == 'paletteLimiter' || f.filterRef == 'pixelate') {
+      const filter = Object.create(f)
+      filter.id = uuidv4()
+      filter.enabled = true
+      filter.options = f.defaultOptions
+      project.filters.push(filter)
+    }
   }
 
   selectedFilter.set(project.filters[4].id)
