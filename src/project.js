@@ -19,7 +19,7 @@ export const createExampleProject = () => {
   const project = {
     id: 'example',
     name: "Example projec5t",
-    image: 'test_ct.jpg',
+    image: 'https://i.imgur.com/Xl7IALq.jpg',
     filters: []
   }
 
@@ -33,7 +33,7 @@ export const createExampleProject = () => {
     }
   }
 
-  selectedFilter.set(project.filters[4].id)
+  // selectedFilter.set(project.filters[4].id)
 
   return project
 }

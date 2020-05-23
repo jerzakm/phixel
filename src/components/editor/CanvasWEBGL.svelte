@@ -7,7 +7,8 @@
     createProgramFromString,
     resizeCanvasToDisplaySize,
     createAndSetupTexture,
-    setupShader
+    setupShader,
+    stateReset
   } from "../../webgl/renderUtils.js";
 
   import Slider from "@smui/slider";
@@ -31,6 +32,8 @@
   function resizeCanvasToImgSize() {
     canvas.width = img.width;
     canvas.height = img.height;
+    scale = 100;
+    rescaleImg();
   }
 
   function rescaleImg() {
@@ -45,6 +48,7 @@
   function renderImage(path) {
     const image = new Image();
     image.src = path;
+    image.crossOrigin = "";
     image.onload = function() {
       render(image);
       img = image;
@@ -157,13 +161,15 @@
     let previousDelta = 0;
     let fpsLimit = 30;
 
-    update(0);
+    function cleanup() {
+      shaders.length = 0;
+      stateReset(gl);
+    }
+
+    update();
     function update(currentDelta) {
       if (rendererId == thisRendererId) {
         requestAnimationFrame(update);
-      } else {
-        console.log("diff renderer");
-        gl.clear();
       }
 
       const delta = currentDelta - previousDelta;
@@ -173,7 +179,6 @@
       }
 
       drawWithShaders();
-
       previousDelta = currentDelta;
     }
 
@@ -229,6 +234,9 @@
 
       setFramebuffer(gl, cleanShader, null, gl.canvas.width, gl.canvas.height);
       draw(gl);
+      if (!rendererId == thisRendererId) {
+        cleanup();
+      }
     }
   }
 </script>
