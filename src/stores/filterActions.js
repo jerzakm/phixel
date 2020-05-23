@@ -24,7 +24,6 @@ export const updateFilterProperty = (filterId, property, value) => {
   const filter = project.filters[filterIndex]
   project.filters[filterIndex][`${property}`] = value
   currentProject.set(project)
-  console.log(value)
 }
 
 export const addNewFilter = ({

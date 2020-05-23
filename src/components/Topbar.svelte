@@ -85,9 +85,10 @@
 <TopAppBar variant="static">
   <Row>
     <Section>
-      <Title>webapp</Title>
+      <Title>App name</Title>
     </Section>
     <Section align="end" toolbar>
+      <span>Sign in works but doesnt do anything yet.</span>
       <div>
         {#if user}
           <Label>{user.displayName}</Label>

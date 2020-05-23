@@ -23,6 +23,10 @@
   });
 </script>
 
+<style>
+
+</style>
+
 <Dialog
   bind:this={filterGalleryDialog}
   aria-labelledby="simple-title"
@@ -31,6 +35,7 @@
   <Content id="simple-content">
     {#each shaderDictionary as filter}
       <Button
+        class="new-filter-button"
         on:click={() => addNewFilter(filter)}
         variant="raised"
         color="secondary">

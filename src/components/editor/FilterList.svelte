@@ -11,6 +11,7 @@
     filterUpdate,
     selectedFilter
   } from "../../stores/stores";
+  import { flip } from "svelte/animate";
 
   import { selectFilter } from "../../stores/filterActions.js";
 
@@ -102,8 +103,11 @@
 
 <div class="filter-list-container">
   <Sortable {options} bind:list>
-    {#each list as filter (filter.name)}
-      <li sortable-id={filter.name} class="filters">
+    {#each list as filter (filter.id)}
+      <li
+        sortable-id={filter.id}
+        animate:flip={{ duration: 250 }}
+        class="filters">
         <div class="filter-container">
           <div
             class={currentSelected === filter.value.id ? 'selected-filter filter-entry' : 'filter-entry'}>
@@ -133,6 +137,10 @@
     color="secondary">
     <Label>Add filters</Label>
   </Button>
-
+  <span>
+    Hint: you can drag filters up and down the list to change when they are
+    applied.
+  </span>
+  <span>Clicking on filter name opens the options window.</span>
 </div>
 <FilterGallery bind:filterGalleryDialog />
