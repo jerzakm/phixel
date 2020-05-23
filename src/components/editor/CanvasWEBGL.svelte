@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     draw,
     setFramebuffer,
@@ -17,200 +17,183 @@
   import { currentProject } from "../../stores/stores";
   import { shaderDictionary } from "../../webgl/shaderManager.js";
 
-  let canvas;
   export let imgPath;
 
-  onMount(() => {
-    const image = new Image();
-    image.crossOrigin = "";
-    image.src = imgPath;
-    image.onload = function() {
-      render(image);
-    };
+  const image = new Image();
+  image.src = imgPath;
+  image.onload = function() {
+    render(image);
+  };
 
-    function render(image) {
-      const gl = canvas.getContext("webgl");
+  function render(image) {
+    const gl = document.getElementById("webgl-img-canvas").getContext("webgl");
 
-      // Create a buffer to put three 2d clip space points in
-      const positionBuffer = gl.createBuffer();
-      // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
-      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-      // Set a rectangle the same size as the image.
-      setRectangle(gl, 0, 0, image.width, image.height);
+    // Create a buffer to put three 2d clip space points in
+    const positionBuffer = gl.createBuffer();
+    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // Set a rectangle the same size as the image.
+    setRectangle(gl, 0, 0, image.width, image.height);
 
-      // provide texture coordinates for the rectangle.
-      const texcoordBuffer = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          1.0,
-          1.0,
-          0.0,
-          1.0,
-          1.0
-        ]),
-        gl.STATIC_DRAW
-      );
+    // provide texture coordinates for the rectangle.
+    const texcoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        1.0
+      ]),
+      gl.STATIC_DRAW
+    );
 
-      // Create a texture and put the image in it.
-      const originalImageTexture = createAndSetupTexture(gl);
+    // Create a texture and put the image in it.
+    const originalImageTexture = createAndSetupTexture(gl);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+    // create 2 textures and attach them to framebuffers.
+    const textures = [];
+    const framebuffers = [];
+
+    for (let i = 0; i < 2; i++) {
+      const texture = createAndSetupTexture(gl);
+      textures.push(texture);
+
+      // make the texture the same size as the image
       gl.texImage2D(
         gl.TEXTURE_2D,
         0,
         gl.RGBA,
+        image.width,
+        image.height,
+        0,
         gl.RGBA,
         gl.UNSIGNED_BYTE,
-        image
+        null
       );
 
-      // create 2 textures and attach them to framebuffers.
-      const textures = [];
-      const framebuffers = [];
+      // Create a framebuffer
+      const fbo = gl.createFramebuffer();
+      framebuffers.push(fbo);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
-      for (let i = 0; i < 2; i++) {
-        const texture = createAndSetupTexture(gl);
-        textures.push(texture);
+      // Attach a texture to it.
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        texture,
+        0
+      );
+    }
 
-        // make the texture the same size as the image
-        gl.texImage2D(
-          gl.TEXTURE_2D,
-          0,
-          gl.RGBA,
-          image.width,
-          image.height,
-          0,
-          gl.RGBA,
-          gl.UNSIGNED_BYTE,
-          null
-        );
+    const cleanShader = DefaultShader.build(gl);
 
-        // Create a framebuffer
-        const fbo = gl.createFramebuffer();
-        framebuffers.push(fbo);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    const shaders = [];
+    let currentShaderOptions = "";
+    // SHADER UPDATER
+    currentProject.subscribe(project => {
+      const fUpdate = JSON.stringify(project.filters);
+      if (fUpdate !== currentShaderOptions) {
+        shaders.length = 0;
+        project.filters.map(filter => {
+          if (filter.enabled) {
+            const builder = shaderDictionary.find(s => {
+              return s.filterRef == filter.filterRef;
+            });
+            const shader = builder.build(gl, filter.options);
+            shaders.push(shader);
+          }
+        });
+        currentShaderOptions = fUpdate;
+      }
+    });
 
-        // Attach a texture to it.
-        gl.framebufferTexture2D(
-          gl.FRAMEBUFFER,
-          gl.COLOR_ATTACHMENT0,
-          gl.TEXTURE_2D,
-          texture,
-          0
-        );
+    resizeCanvasToDisplaySize(gl.canvas, 1.5);
+
+    let updateId;
+    let previousDelta = 0;
+    let fpsLimit = 30;
+
+    update(0);
+    function update(currentDelta) {
+      updateId = requestAnimationFrame(update);
+
+      const delta = currentDelta - previousDelta;
+
+      if (fpsLimit && delta < 1000 / fpsLimit) {
+        return;
       }
 
-      const cleanShader = DefaultShader.build(gl);
+      drawWithShaders();
 
-      const shaders = [];
-      let currentShaderOptions = "";
-      // SHADER UPDATER
-      currentProject.subscribe(project => {
-        const fUpdate = JSON.stringify(project.filters);
-        if (fUpdate !== currentShaderOptions) {
-          shaders.length = 0;
-          project.filters.map(filter => {
-            if (filter.enabled) {
-              const builder = shaderDictionary.find(s => {
-                return s.filterRef == filter.filterRef;
-              });
-              const shader = builder.build(gl, filter.options);
-              shaders.push(shader);
-            }
-          });
-          currentShaderOptions = fUpdate;
-        }
-      });
+      previousDelta = currentDelta;
+    }
 
-      resizeCanvasToDisplaySize(gl.canvas, 1.5);
+    function drawWithShaders() {
+      // Clear the canvas
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
 
-      let updateId;
-      let previousDelta = 0;
-      let fpsLimit = 30;
+      // Bind the position buffer.
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-      update(0);
-      function update(currentDelta) {
-        updateId = requestAnimationFrame(update);
+      // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+      let size = 2; // 2 components per iteration
+      let type = gl.FLOAT; // the data is 32bit floats
+      let normalize = false; // don't normalize the data
+      let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
+      let offset = 0; // start at the beginning of the buffer
 
-        const delta = currentDelta - previousDelta;
+      gl.vertexAttribPointer(
+        cleanShader.uniforms.positionLocation,
+        size,
+        type,
+        normalize,
+        stride,
+        offset
+      );
+      gl.enableVertexAttribArray(cleanShader.uniforms.texcoordLocation);
 
-        if (fpsLimit && delta < 1000 / fpsLimit) {
-          return;
-        }
+      gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+      gl.bindTexture(gl.TEXTURE_2D, originalImageTexture);
 
-        drawWithShaders();
-
-        previousDelta = currentDelta;
-      }
-
-      function drawWithShaders() {
-        // Clear the canvas
-        gl.clearColor(0, 0, 0, 0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        // Bind the position buffer.
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-        // Tell the position attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-        let size = 2; // 2 components per iteration
-        let type = gl.FLOAT; // the data is 32bit floats
-        let normalize = false; // don't normalize the data
-        let stride = 0; // 0 = move forward size * sizeof(type) each iteration to get the next position
-        let offset = 0; // start at the beginning of the buffer
-
-        gl.vertexAttribPointer(
-          cleanShader.uniforms.positionLocation,
-          size,
-          type,
-          normalize,
-          stride,
-          offset
-        );
-        gl.enableVertexAttribArray(cleanShader.uniforms.texcoordLocation);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
-        gl.bindTexture(gl.TEXTURE_2D, originalImageTexture);
-
-        for (let i = 0; i < shaders.length; i++) {
-          setupShader(gl, image, shaders[i]);
-          // Setup to draw into one of the framebuffers.
-          setFramebuffer(
-            gl,
-            shaders[i],
-            framebuffers[i % 2],
-            image.width,
-            image.height
-          );
-
-          draw(gl);
-
-          // for the next draw, use the texture we just rendered to.
-          gl.bindTexture(gl.TEXTURE_2D, textures[i % 2]);
-          // increment count so we use the other texture next time.
-        }
-
-        setupShader(gl, image, cleanShader);
-        // finally draw the result to the canvas.
-        gl.uniform1f(cleanShader.uniforms.flipYLocation, -1); // need to y flip for canvas
-
+      for (let i = 0; i < shaders.length; i++) {
+        setupShader(gl, image, shaders[i]);
+        // Setup to draw into one of the framebuffers.
         setFramebuffer(
           gl,
-          cleanShader,
-          null,
-          gl.canvas.width,
-          gl.canvas.height
+          shaders[i],
+          framebuffers[i % 2],
+          image.width,
+          image.height
         );
+
         draw(gl);
+
+        // for the next draw, use the texture we just rendered to.
+        gl.bindTexture(gl.TEXTURE_2D, textures[i % 2]);
+        // increment count so we use the other texture next time.
       }
+
+      setupShader(gl, image, cleanShader);
+      // finally draw the result to the canvas.
+      gl.uniform1f(cleanShader.uniforms.flipYLocation, -1); // need to y flip for canvas
+
+      setFramebuffer(gl, cleanShader, null, gl.canvas.width, gl.canvas.height);
+      draw(gl);
     }
-  });
+  }
 </script>
 
-<canvas bind:this={canvas} />
+<canvas id="webgl-img-canvas" />
