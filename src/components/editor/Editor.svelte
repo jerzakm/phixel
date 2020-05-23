@@ -41,6 +41,6 @@
   </div>
 </div>
 
-{#if selectedFilterUuid}
-  <FilterOptionWindow />
-{/if}
+<!-- {#if selectedFilterUuid} -->
+<FilterOptionWindow />
+<!-- {/if} -->

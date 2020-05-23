@@ -56,31 +56,20 @@
 </script>
 
 <style>
-  .filter-option-container {
-    min-width: 100px;
-    min-height: 100px;
-    max-width: 400px;
-    background-color: #dddddd;
-    position: fixed;
-    top: 100px;
-    right: 305px;
-  }
 
-  .filter-options-container {
-    width: 100%;
-    background-color: rgb(245, 245, 245);
-  }
 </style>
 
-<div class="filter-option-container" bind:this={filterOptionWindow}>
-  {#if filter && filterOptions}
+{#if filter && filterOptions && filterOptions.length > 0}
+  <div class="filter-option-container" bind:this={filterOptionWindow}>
+    <h2 class="filter-name">{filter.name} options</h2>
     <div class="filter-options-container">
       {#each filterOptions as option}
         {#if option.type == 'slider'}
           <div class="filter-options-slider-container">
-            <span>{option.name}</span>
+            <span class="filter-option-name flex-center">{option.name}</span>
             <input
               type="range"
+              class="filter-options-slider"
               bind:value={filter.options[`${option.filterProperty}`]}
               min={option.min}
               max={option.max}
@@ -88,7 +77,9 @@
                 updateFilterProperty(selecteduuid, option.filterProperty, event.target.value);
               }}
               step={option.step} />
-            <span>{filter.options[`${option.filterProperty}`]}</span>
+            <span class="slider-value flex-center">
+              {filter.options[`${option.filterProperty}`]}
+            </span>
           </div>
         {:else if option.type == 'colorPicker'}
           <div class="filter-options-colorPicker-container">
@@ -139,5 +130,5 @@
         {/if}
       {/each}
     </div>
-  {/if}
-</div>
+  </div>
+{/if}

@@ -1,6 +1,6 @@
 @import 'smui-theme.scss';
 @import 'filters.scss';
-
+@import 'filterOptions.scss';
 
 body {
     font-family: 'Roboto';
@@ -21,4 +21,11 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: -1;
+}
+
+.flex-center {
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
 }

@@ -6,53 +6,6 @@
   margin-left: 5px;
 }
 
-.filter-options-slider-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-}
-
-.filter-options-slider {
-  width: 50%;
-}
-
 .selected-filter {
   outline: $mdc-theme-secondary solid 2px;
-}
-
-.filter-options-colorPicker-container {
-  display: grid;
-  grid-column-gap: 5px;
-  grid-template-columns: 2fr 3fr;
-  // background-color: #2196F3;
-  padding: 5px;
-
-  .filter-name {
-    display: flex;
-    align-items: center;
-  }
-
-  .color-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    max-width: 300px;
-    justify-content: flex-start;
-  }
-}
-
-// color picker square padding
-.pickr {
-  padding: 2px 2px;
-}
-
-.color-picker-add {
-  padding: 0px;
-  margin: 1px;
-  width: 26px;
-  height: 26px;
-  border-radius: .15em;
-  font-size: 1.9em;
-  cursor: pointer;
-  user-select: none;
 }
