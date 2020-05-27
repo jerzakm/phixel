@@ -77,9 +77,17 @@
                 updateFilterProperty(selecteduuid, option.filterProperty, event.target.value);
               }}
               step={option.step} />
-            <span class="slider-value flex-center">
+            <!-- <span class="slider-value flex-center">
               {filter.options[`${option.filterProperty}`]}
-            </span>
+            </span> -->
+            <input
+              class="slider-value"
+              type="number"
+              bind:value={filter.options[`${option.filterProperty}`]}
+              on:input={event => {
+                updateFilterProperty(selecteduuid, option.filterProperty, event.target.value);
+              }}
+              step={option.step} />
           </div>
         {:else if option.type == 'colorPicker'}
           <div class="filter-options-colorPicker-container">
