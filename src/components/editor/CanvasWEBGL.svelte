@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
+  import { onMount } from "svelte";
   import {
     draw,
     setFramebuffer,
@@ -239,6 +239,32 @@
       }
     }
   }
+
+  onMount(() => {
+    let dragging = false;
+    const canvasOrigin = { x: 0, y: 0 };
+    const mouseOrigin = { x: 0, y: 0 };
+    canvas.addEventListener("pointerdown", e => {
+      dragging = true;
+      canvasOrigin.x = canvas.getBoundingClientRect().x;
+      canvasOrigin.y = canvas.getBoundingClientRect().y;
+      mouseOrigin.x = e.clientX;
+      mouseOrigin.y = e.clientY;
+    });
+    canvas.addEventListener("pointerup", e => {
+      dragging = false;
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (dragging) {
+        canvas.style.left = `${canvasOrigin.x - mouseOrigin.x + e.clientX}px`;
+        canvas.style.top = `${canvasOrigin.y - mouseOrigin.y + e.clientY}px`;
+      }
+    });
+    canvas.addEventListener("wheel", e => {
+      console.log(e);
+      e.deltaY > 0 ? (scale += 10) : (scale -= 10);
+    });
+  });
 </script>
 
 <style>
@@ -251,6 +277,10 @@
   }
   .img-scale {
     color: white;
+  }
+
+  #webgl-img-canvas {
+    position: fixed;
   }
 </style>
 
