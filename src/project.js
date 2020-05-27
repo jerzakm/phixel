@@ -19,7 +19,7 @@ export const createExampleProject = () => {
   const project = {
     id: 'example',
     name: "Example projec5t",
-    image: 'https://i.imgur.com/Xl7IALq.jpg',
+    image: 'assets/example_causeway.jpg',
     filters: []
   }
 
