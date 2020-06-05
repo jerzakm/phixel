@@ -246,6 +246,7 @@
     const mouseOrigin = { x: 0, y: 0 };
     canvas.addEventListener("pointerdown", e => {
       dragging = true;
+      canvas.style.transition = "unset";
       canvasOrigin.x = canvas.getBoundingClientRect().x;
       canvasOrigin.y = canvas.getBoundingClientRect().y;
       mouseOrigin.x = e.clientX;
@@ -253,6 +254,24 @@
     });
     canvas.addEventListener("pointerup", e => {
       dragging = false;
+      const canvasRect = canvas.getBoundingClientRect();
+
+      const screenCenter = {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2
+      };
+
+      if (
+        canvasRect.x + canvasRect.width < 80 ||
+        canvasRect.x > window.innerWidth - 80 ||
+        canvasRect.y > window.innerHeight - 80 ||
+        canvasRect.y + canvasRect.height < 80
+      ) {
+        canvas.style.transition =
+          "all 500ms cubic-bezier(0.485, 0.305, 0.210, 0.740)";
+        canvas.style.left = `${20}px`;
+        canvas.style.top = `${20}px`;
+      }
     });
     canvas.addEventListener("pointermove", e => {
       if (dragging) {
