@@ -14,6 +14,14 @@ export const loadProject = (project) => {
   currentProject.set(project)
 }
 
+export const createNewProject = () => {
+  return {
+    id: uuidv4(),
+    name: 'New project',
+    image: undefined,
+    filters: []
+  }
+}
 
 export const createExampleProject = () => {
   const project = {

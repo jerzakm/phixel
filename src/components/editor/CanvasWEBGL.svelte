@@ -46,13 +46,17 @@
   $: scale && rescaleImg();
 
   function renderImage(path) {
-    const image = new Image();
-    image.src = path;
-    image.crossOrigin = "";
-    image.onload = function() {
-      render(image);
-      img = image;
-    };
+    if (path) {
+      const image = new Image();
+      image.src = path;
+      image.crossOrigin = "";
+      image.onload = function() {
+        render(image);
+        img = image;
+      };
+    } else {
+      console.log("image undefined");
+    }
   }
 
   $: renderImage(imgPath);

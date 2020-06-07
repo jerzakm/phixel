@@ -3,10 +3,15 @@
   import Editor from "./components/editor/Editor.svelte";
   import { currentProject } from "./stores/stores";
 
-  import { createExampleProject, loadProject } from "./project";
+  import {
+    createExampleProject,
+    createNewProject,
+    loadProject
+  } from "./project";
 
-  const example = createExampleProject();
-  loadProject(example);
+  // const project = createExampleProject();
+  const project = createNewProject();
+  loadProject(project);
 </script>
 
 <Topbar />
