@@ -85,7 +85,7 @@
 <TopAppBar variant="static">
   <Row>
     <Section>
-      <Title>App name</Title>
+      <Title>Phixel</Title>
     </Section>
     <Section align="end" toolbar>
       <span>Sign in works but doesnt do anything yet.</span>

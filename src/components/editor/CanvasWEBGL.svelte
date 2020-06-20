@@ -248,9 +248,11 @@
     let dragging = false;
     const canvasOrigin = { x: 0, y: 0 };
     const mouseOrigin = { x: 0, y: 0 };
+    canvas.style.zIndex = -1;
     canvas.addEventListener("pointerdown", e => {
       dragging = true;
       canvas.style.transition = "unset";
+
       canvasOrigin.x = canvas.getBoundingClientRect().x;
       canvasOrigin.y = canvas.getBoundingClientRect().y;
       mouseOrigin.x = e.clientX;
