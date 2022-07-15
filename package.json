@@ -32,7 +32,7 @@
     "sass-loader": "^8.0.2",
     "serve": "^11.0.0",
     "style-loader": "^0.23.1",
-    "svelte": "^3.22.2",
+    "svelte": "^3.49.0",
     "svelte-loader": "2.13.3",
     "svelte-material-ui": "^1.0.0-beta.20",
     "svelte-preprocess": "^3.7.4",
